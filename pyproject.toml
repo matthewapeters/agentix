@@ -1,0 +1,17 @@
+[project]
+name = "agentix"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "requests>=2.32.5",
+]
+
+[dependency-groups]
+test = [
+    "black>=25.12.0",
+    "flake8>=7.3.0",
+    "mypy>=1.19.1",
+    "pytest>=9.0.2",
+]
