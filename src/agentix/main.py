@@ -4,7 +4,7 @@ import argparse
 from .constants import DEFAULT_TEMPERATURE, DEFAULT_SESSION_ID
 from .models import get_models, get_model
 from .prompts import get_prompts
-from .sessions import manage_sessions
+from .sessions import manage_sessions, update_session
 from .api_client import assemble_payload, query_api, summarize_user_prompt
 
 
@@ -67,7 +67,10 @@ def main():
     payload = assemble_payload(args, max_tokens)
     
     # if args.with_front_end:
-    print(query_api(args, payload))
+    agent_content = query_api(args, payload)
+    print(json.dumps(agent_content, indent=2))
+    update_session(args, payload["messages"], agent_content)   
+
 
 
 if __name__ == "__main__":

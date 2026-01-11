@@ -5,7 +5,7 @@ import sys
 import json
 import glob
 from datetime import datetime, UTC
-from .constants import SESSIONS_DIR, SESSIONS_METADATA_FILE, MAX_TOKENS
+from .constants import SESSIONS_DIR, SESSIONS_METADATA_FILE, MAX_TOKENS, DEFAULT_SESSION_ID
 
 
 def get_session_history(session_id: str) -> list:
@@ -96,3 +96,25 @@ def manage_sessions(args):
                 # Continue with the same model if not specified
                 if not args.model:
                     args.model = sessions["sessions"][-1]["model"]
+
+def update_session(args, history: list, response: str):
+    """Update session history with the latest interaction."""
+    #history = get_session_history(args.session) or []
+
+    # Append user message
+    #user_message = next((msg for msg in payload["messages"] if msg["role"] == "user"), None)
+    #if user_message:
+    #    history.append(user_message)
+
+    # Append assistant message
+    assistant_message = {
+        "role": "assistant",
+        "content": response
+    }
+    history.append(assistant_message)
+
+    # Save updated history
+    os.makedirs(f"{SESSIONS_DIR}{args.session}", exist_ok=True)
+    ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    with open(f"{SESSIONS_DIR}{args.session}/{ts}.json", 'w', encoding='utf-8') as f:
+        json.dump(history, f, indent=2)
