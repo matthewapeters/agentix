@@ -5,13 +5,30 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "argparse>=1.4.0",
+    "consoleprinter",
+    "future>=1.0.0",
+    "pip>=25.3",
+    "pyyaml>=6.0.3",
     "requests>=2.32.5",
 ]
 
+[project.scripts]
+agentix =  "agentix.main:main"
+
+# packages inside src/*
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [dependency-groups]
-test = [
+dev = [
     "black>=25.12.0",
     "flake8>=7.3.0",
+    "isort>=7.0.0",
     "mypy>=1.19.1",
     "pytest>=9.0.2",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
