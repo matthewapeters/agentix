@@ -9,6 +9,7 @@ wheels/
 # Virtual environments
 .venv
 
+.coverage
 .vscode
 sessions
 agentix_sessions.json
