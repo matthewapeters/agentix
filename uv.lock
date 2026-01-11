@@ -23,6 +23,9 @@ dev = [
     { name = "mypy" },
     { name = "pytest" },
 ]
+developclear = [
+    { name = "isort" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -42,6 +45,7 @@ dev = [
     { name = "mypy", specifier = ">=1.19.1" },
     { name = "pytest", specifier = ">=9.0.2" },
 ]
+developclear = [{ name = "isort", specifier = ">=7.0.0" }]
 
 [[package]]
 name = "argparse"

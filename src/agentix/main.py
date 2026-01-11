@@ -65,8 +65,9 @@ def main():
     
     # Assemble payload and query API
     payload = assemble_payload(args, max_tokens)
-    if args.with_front_end:
-        print(query_api(args, payload))
+    
+    # if args.with_front_end:
+    print(query_api(args, payload))
 
 
 if __name__ == "__main__":

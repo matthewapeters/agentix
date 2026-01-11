@@ -1,5 +1,6 @@
 # Session management for Agentix CLI
 
+import os
 import sys
 import json
 import glob
@@ -9,9 +10,11 @@ from .constants import SESSIONS_DIR, SESSIONS_METADATA_FILE, MAX_TOKENS
 
 def get_session_history(session_id: str) -> list:
     """Retrieve session history JSON from timestamped files."""
+
+    os.makedirs(f"{SESSIONS_DIR}{session_id}", exist_ok=True)
     try:
         # find the most recent timestamped file matching the session id
-        session_file = glob.glob(f"{SESSIONS_DIR}{session_id}_*.json")[-1]
+        session_file = glob.glob(f"{SESSIONS_DIR}{session_id}/*.json")[-1]
         with open(session_file, 'r', encoding='utf-8') as f:
             history = json.load(f)
             return history
@@ -24,9 +27,10 @@ def trim_context(args, messages: list, max_tokens: int) -> list:
     history = get_session_history(args.session) or []
     history.extend(messages)
 
+    os.makedirs(f"{SESSIONS_DIR}{args.session}", exist_ok=True)
     # Checkpoint history
     ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    with open(f"{SESSIONS_DIR}{args.session}_{ts}.json", 'w', encoding='utf-8') as f:
+    with open(f"{SESSIONS_DIR}{args.session}/{ts}.json", 'w', encoding='utf-8') as f:
         json.dump(history, f, indent=2)
 
     # Trim history based on token limits (max_tokens)
