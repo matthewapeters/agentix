@@ -3,8 +3,8 @@
 from .main import main
 from .models import get_models, get_model
 from .prompts import get_system_prompt, get_user_prompt, get_prompts
-from .sessions import get_session_history, trim_context, manage_sessions
-from .api_client import assemble_payload, query_api, summarize_user_prompt
+from .sessions import get_session_history, trim_context, manage_sessions,assemble_payload 
+from .api_client import query_api, summarize_user_prompt
 from .file_utils import load_file, get_file, get_attachments
 from .constants import (
     MAX_TOKENS,

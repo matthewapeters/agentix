@@ -4,27 +4,7 @@ import sys
 import json
 import requests
 from .constants import OLLAMA_API_BASE, OLLAMA_CHAT_ENDPOINT
-from .prompts import get_system_prompt, get_user_prompt
-from .file_utils import get_attachments
-from .sessions import trim_context
-
-
-def assemble_payload(args, max_tokens: int) -> dict:
-    """Construct API request payload with messages and configuration."""
-    messages = [
-        {"role": "system", "content": get_system_prompt(args)},
-        {"role": "user", 
-         "content": get_user_prompt(args),
-         "attachments": get_attachments(args)}
-    ]
-
-    contextual_messages = trim_context(args, messages, max_tokens)
-
-    return {
-        "model": args.model,
-        "messages": contextual_messages,
-        "temperature": args.temperature,
-    }
+from .prompts import get_user_prompt
 
 
 def query_api(args, payload: dict) -> str:

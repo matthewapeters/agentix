@@ -5,7 +5,10 @@ import sys
 import json
 import glob
 from datetime import datetime, UTC
-from .constants import SESSIONS_DIR, SESSIONS_METADATA_FILE, MAX_TOKENS, DEFAULT_SESSION_ID
+from .constants import SESSIONS_DIR, SESSIONS_METADATA_FILE
+from .api_client import summarize_user_prompt 
+from .file_utils import get_attachments
+from .prompts import get_system_prompt, get_user_prompt
 
 
 def get_session_history(session_id: str) -> list:
@@ -20,6 +23,24 @@ def get_session_history(session_id: str) -> list:
             return history
     except (FileNotFoundError, IndexError):
         return []
+
+
+def assemble_payload(args, history, max_tokens: int) -> dict:
+    """Construct API request payload with messages and configuration."""
+    history.extend([
+        {"role": "system", "content": get_system_prompt(args)},
+        {"role": "user", 
+         "content": get_user_prompt(args),
+         "attachments": get_attachments(args)}
+    ])
+
+    contextual_messages = trim_context(args, history, max_tokens)
+
+    return {
+        "model": args.model,
+        "messages": contextual_messages,
+        "temperature": args.temperature,
+    }
 
 
 def trim_context(args, messages: list, max_tokens: int) -> list:
@@ -64,29 +85,38 @@ def manage_sessions(args):
     """Create, retrieve, and manage session state."""
     # if no specific session is requested, (session == agentix_session) then summarize 
     # the prompt and add it to the sessions metadata file
-
+    history = []
+    print((f"Managing session: {args.session}"), file=sys.stderr)
     match args.session:
         case "agentix_session":
+            print("Creating new session...", file=sys.stderr)
             # summarize_user_prompt is called from api_client.py to avoid circular imports
+
             try:
                 with open(SESSIONS_METADATA_FILE, "r", encoding='utf-8') as f:
                     sessions = json.load(f)
             except FileNotFoundError:
                 sessions = {"sessions": []}
 
+            summarize_user_prompt(args)
+
             sessions["sessions"].append({
                 "session_id": args.session,
                 "model": args.model,
                 "created_at": datetime.now(UTC).isoformat(),
             })
+
             with open(SESSIONS_METADATA_FILE, "w", encoding='utf-8') as f:
                 json.dump(sessions, f, indent=2)
+                print(f"Session {args.session} created.", file=sys.stderr)
         case "__continue":
             # continue the session
+            print("Continuing previous session...", file=sys.stderr)
             try:
                 with open(SESSIONS_METADATA_FILE, "r", encoding='utf-8') as f:
                     sessions = json.load(f)
             except FileNotFoundError:
+                print("No previous sessions found.", file=sys.stderr)
                 sessions = {"sessions": []}
             # get the last session
             if sessions["sessions"]:
@@ -96,6 +126,9 @@ def manage_sessions(args):
                 # Continue with the same model if not specified
                 if not args.model:
                     args.model = sessions["sessions"][-1]["model"]
+                history = get_session_history(args.session)
+    return history
+
 
 def update_session(args, history: list, response: str):
     """Update session history with the latest interaction."""

@@ -4,8 +4,8 @@ import argparse
 from .constants import DEFAULT_TEMPERATURE, DEFAULT_SESSION_ID
 from .models import get_models, get_model
 from .prompts import get_prompts
-from .sessions import manage_sessions, update_session
-from .api_client import assemble_payload, query_api, summarize_user_prompt
+from .sessions import manage_sessions, update_session, assemble_payload
+from .api_client import query_api
 
 
 
@@ -59,12 +59,10 @@ def main():
     max_tokens = get_model(args)
     
     # Manage session state
-    if args.session == DEFAULT_SESSION_ID:
-        summarize_user_prompt(args)
-    manage_sessions(args)
+    history = manage_sessions(args)
     
     # Assemble payload and query API
-    payload = assemble_payload(args, max_tokens)
+    payload = assemble_payload(args, history, max_tokens)
     
     # if args.with_front_end:
     agent_content = query_api(args, payload)
