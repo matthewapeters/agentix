@@ -27,13 +27,20 @@ def get_session_history(session_id: str) -> list:
 
 def assemble_payload(args, history, max_tokens: int) -> dict:
     """Construct API request payload with messages and configuration."""
-    history.extend([
-        {"role": "system", "content": get_system_prompt(args)},
-        {"role": "user", 
-         "content": get_user_prompt(args),
-         "attachments": get_attachments(args)}
-    ])
 
+    # add system prompts if provided
+    if args.system:
+        history.append({"role": "system", "content": get_system_prompt(args)})
+
+    if args.user or args.file_path:
+        # add user prompts if provided
+        history.append(
+            {"role": "user", 
+            "content": get_user_prompt(args),
+            "attachments": get_attachments(args)}
+        )
+
+    # Trim context based on max_tokens
     contextual_messages = trim_context(args, history, max_tokens)
 
     return {
@@ -45,21 +52,20 @@ def assemble_payload(args, history, max_tokens: int) -> dict:
 
 def trim_context(args, messages: list, max_tokens: int) -> list:
     """Handle message history with token-based trimming."""
-    history = get_session_history(args.session) or []
-    history.extend(messages)
 
+    # save the untrimmed history first
     os.makedirs(f"{SESSIONS_DIR}{args.session}", exist_ok=True)
     # Checkpoint history
     ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     with open(f"{SESSIONS_DIR}{args.session}/{ts}.json", 'w', encoding='utf-8') as f:
-        json.dump(history, f, indent=2)
+        json.dump(messages, f, indent=2)
 
     # Trim history based on token limits (max_tokens)
     total_tokens = 0
     trimmed_history = []
 
     # Iterate over messages from the most recent to the oldest
-    for message in reversed(history):
+    for message in reversed(messages):
         # Estimate tokens for the current message
         # Assuming 1 token per 4 characters as a rough approximation
         message_tokens = len(message["content"]) // 4
