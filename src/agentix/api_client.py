@@ -48,7 +48,7 @@ def summarize_user_prompt(args) -> str:
     """Generate a session summary name based on the user prompt."""
     # Use query_api to generate a session summary name based on the user prompt
     summary_payload = {
-        "model": args.model,
+        "model": "phi4-mini:3.8b", # args.model,
         "messages": [
             {
                 "role": "system",
