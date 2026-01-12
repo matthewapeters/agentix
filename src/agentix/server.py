@@ -1,5 +1,10 @@
+# agentix/server.py
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+
+from .models import get_models, get_model
+from .transforms import transform_ollama_tags_to_openai_engines
 
 app = FastAPI()
 
@@ -84,12 +89,20 @@ async def cancel_fine_tune(fine_tune_id: str):
 
 @app.get("/v1/engines")
 async def list_engines():
-    return JSONResponse(content={"data": []})
+    return JSONResponse(
+        content={"data": transform_ollama_tags_to_openai_engines(get_models())}
+    )
 
 
 @app.get("/v1/engines/{engine_id}")
 async def retrieve_engine(engine_id: str):
-    return JSONResponse(content={"id": engine_id, "object": "engine"})
+    engines = transform_ollama_tags_to_openai_engines(
+        get_models(), filter_tag=engine_id
+    )
+    engine = engines["data"][0] if engines["data"] else None
+    if engine:
+        return JSONResponse(content=engine)
+    return JSONResponse(content={"error": "Engine not found"}, status_code=404)
 
 
 def start_server(port: int):
