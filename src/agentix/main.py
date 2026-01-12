@@ -75,6 +75,20 @@ def main():
         action="store_true",
         help="Agentix is working with a front-end",
     )
+    args.add_argument(
+        "--serve",
+        dest="serve",
+        default=False,
+        action="store_true",
+        help="Launch FastAPI server",
+    )
+    args.add_argument(
+        "--port",
+        type=int,
+        dest="port",
+        default=8000,
+        help="Port to serve on (default: 8000)",
+    )
     args = args.parse_args()
 
     # if the user is requesting to list models, list them and return
@@ -96,6 +110,13 @@ def main():
                     print(line.strip())
         except FileNotFoundError:
             print("No sessions found", file=sys.stderr)
+        return
+
+    # If --serve is passed, launch the FastAPI server
+    if args.serve:
+        from .server import start_server
+
+        start_server(args.port)
         return
 
     # Get model and set max_tokens
