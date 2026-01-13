@@ -1,5 +1,6 @@
 # agentix/transforms.py
-
+import sys
+import json
 
 def transform_ollama_tags_to_openai_engines(ollama_tags, filter_tag=None):
     """
@@ -24,10 +25,11 @@ def transform_ollama_tags_to_openai_engines(ollama_tags, filter_tag=None):
                 ]
             }
     """
+    print(json.dumps(ollama_tags, indent=2), file=sys.stderr)
     return {
         "data": [
-            {"id": tag["id"], "object": "engine", "owner": "ollama", "ready": True}
+            {"id": tag["name"], "object": "engine", "owner": "ollama", "ready": True}
             for tag in ollama_tags
-            if filter_tag is None or tag["id"] == filter_tag
+            if filter_tag is None or tag["name"] == filter_tag
         ]
     }

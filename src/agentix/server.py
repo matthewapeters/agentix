@@ -8,6 +8,11 @@ from .transforms import transform_ollama_tags_to_openai_engines
 
 app = FastAPI()
 
+class DummyArgs:
+    """A dummy args class to simulate command-line arguments."""
+    def __init__(self):
+        self.debug = False
+        self.model = None
 
 @app.get("/v1/models")
 async def list_models():
@@ -89,15 +94,17 @@ async def cancel_fine_tune(fine_tune_id: str):
 
 @app.get("/v1/engines")
 async def list_engines():
+    args = DummyArgs()  # Placeholder for args if needed
     return JSONResponse(
-        content={"data": transform_ollama_tags_to_openai_engines(get_models())}
+        content={"data": transform_ollama_tags_to_openai_engines(get_models(args))}
     )
 
 
 @app.get("/v1/engines/{engine_id}")
 async def retrieve_engine(engine_id: str):
+    args = DummyArgs()  # Placeholder for args if needed
     engines = transform_ollama_tags_to_openai_engines(
-        get_models(), filter_tag=engine_id
+        get_models(args), filter_tag=engine_id
     )
     engine = engines["data"][0] if engines["data"] else None
     if engine:
