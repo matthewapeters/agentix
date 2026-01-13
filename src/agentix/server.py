@@ -3,16 +3,19 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
-from .models import get_models, get_model
+from .models import get_model, get_models
 from .transforms import transform_ollama_tags_to_openai_engines
 
 app = FastAPI()
 
+
 class DummyArgs:
     """A dummy args class to simulate command-line arguments."""
+
     def __init__(self):
         self.debug = False
         self.model = None
+
 
 @app.get("/v1/models")
 async def list_models():

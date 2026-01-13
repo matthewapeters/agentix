@@ -1,11 +1,13 @@
-import sys
-import json
 import argparse
-from .constants import DEFAULT_TEMPERATURE, DEFAULT_SESSION_ID
-from .models import get_models, get_model
-from .prompts import get_prompts
-from .sessions import manage_sessions, update_session, assemble_payload
+import json
+import sys
+
 from .api_client import query_api
+from .constants import DEFAULT_SESSION_ID, DEFAULT_TEMPERATURE
+from .file_utils import replace_file_content
+from .models import get_model, get_models
+from .prompts import get_prompts
+from .sessions import assemble_payload, manage_sessions, update_session
 
 
 def main():
@@ -67,6 +69,13 @@ def main():
         dest="file_path",
         help="Path to the file containing the prompt",
     )
+    args.add_argument(
+        "--replace-file",
+        dest="replace_file",
+        default=False,
+        action="store_true",
+        help="Replace the file contents with the LLM output",
+    )
     args.add_argument("--debug", type=bool, default=False, help="Enable debug output")
     args.add_argument(
         "--with-front-end",
@@ -105,7 +114,7 @@ def main():
         from .constants import SESSIONS_METADATA_FILE
 
         try:
-            with open(SESSIONS_METADATA_FILE, "r") as f:
+            with open(SESSIONS_METADATA_FILE, "r", encoding="utf-8") as f:
                 for line in f.readlines():
                     print(line.strip())
         except FileNotFoundError:
@@ -131,9 +140,22 @@ def main():
     payload = assemble_payload(args, history, max_tokens)
 
     # if args.with_front_end:
-    agent_content = query_api(args, payload)
-    print(json.dumps(agent_content, indent=2).encode("utf-8").decode("unicode_escape"))
-    update_session(args, payload["messages"], agent_content)
+    agent_content = {}
+    agent_content_raw = query_api(args, payload)
+    print(
+        json.dumps(agent_content_raw, indent=2).encode("utf-8").decode("unicode_escape")
+    )
+    update_session(args, payload["messages"], agent_content_raw)
+    if "structured_response" in args.prompts:
+        try:
+            agent_content = json.loads(agent_content_raw)
+        except json.JSONDecodeError:
+            agent_content = {"response": agent_content_raw}
+    # Section to determine next steps:
+    # If --replace-file is passed, replace the contents of the file with the LLM output
+    if args.replace_file and args.file_path:
+        if "attachment" in agent_content:
+            replace_file_content(args, agent_content["attachment"])
 
 
 if __name__ == "__main__":

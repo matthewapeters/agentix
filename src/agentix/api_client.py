@@ -1,8 +1,10 @@
 # API client for Agentix CLI
 
-import sys
 import json
+import sys
+
 import requests
+
 from .constants import OLLAMA_API_BASE, OLLAMA_CHAT_ENDPOINT
 from .prompts import get_user_prompt
 
@@ -17,9 +19,12 @@ def query_api(args, payload: dict) -> str:
         print("Payload:", file=sys.stderr)
         print(json.dumps(payload, indent=2), file=sys.stderr)
 
-    response = requests.post(f"{OLLAMA_API_BASE}{OLLAMA_CHAT_ENDPOINT}", 
-                             headers=headers, 
-                             data=json.dumps(payload))
+    response = requests.post(
+        f"{OLLAMA_API_BASE}{OLLAMA_CHAT_ENDPOINT}",
+        headers=headers,
+        data=json.dumps(payload),
+        timeout=300,
+    )
 
     if response.status_code == 200:
         result = response.json()
@@ -48,7 +53,7 @@ def summarize_user_prompt(args) -> str:
     """Generate a session summary name based on the user prompt."""
     # Use query_api to generate a session summary name based on the user prompt
     summary_payload = {
-        "model": "phi4-mini:3.8b", # args.model,
+        "model": "phi4-mini:3.8b",  # args.model,
         "messages": [
             {
                 "role": "system",
@@ -57,12 +62,9 @@ def summarize_user_prompt(args) -> str:
                     "Generate a short, descriptive session name (3-5 words) that captures the essence of the user's prompt.\n"
                     "Avoid using special characters or spaces in the session name.\n"
                     "Respond with only the session name without any additional text."
-                )
+                ),
             },
-            {
-                "role": "user",
-                "content": get_user_prompt(args)
-            }
+            {"role": "user", "content": get_user_prompt(args)},
         ],
         "temperature": 0.8,
     }

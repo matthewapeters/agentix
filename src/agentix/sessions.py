@@ -1,12 +1,13 @@
 # Session management for Agentix CLI
 
+import glob
+import json
 import os
 import sys
-import json
-import glob
-from datetime import datetime, UTC
+from datetime import UTC, datetime
+
+from .api_client import summarize_user_prompt
 from .constants import SESSIONS_DIR, SESSIONS_METADATA_FILE
-from .api_client import summarize_user_prompt 
 from .file_utils import get_attachments
 from .prompts import get_system_prompt, get_user_prompt
 
@@ -18,7 +19,7 @@ def get_session_history(session_id: str) -> list:
     try:
         # find the most recent timestamped file matching the session id
         session_file = glob.glob(f"{SESSIONS_DIR}{session_id}/*.json")[-1]
-        with open(session_file, 'r', encoding='utf-8') as f:
+        with open(session_file, "r", encoding="utf-8") as f:
             history = json.load(f)
             return history
     except (FileNotFoundError, IndexError):
@@ -35,9 +36,11 @@ def assemble_payload(args, history, max_tokens: int) -> dict:
     if args.user or args.file_path:
         # add user prompts if provided
         history.append(
-            {"role": "user", 
-            "content": get_user_prompt(args),
-            "attachments": get_attachments(args)}
+            {
+                "role": "user",
+                "content": get_user_prompt(args),
+                "attachments": get_attachments(args),
+            }
         )
 
     # Trim context based on max_tokens
@@ -57,7 +60,7 @@ def trim_context(args, messages: list, max_tokens: int) -> list:
     os.makedirs(f"{SESSIONS_DIR}{args.session}", exist_ok=True)
     # Checkpoint history
     ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    with open(f"{SESSIONS_DIR}{args.session}/{ts}.json", 'w', encoding='utf-8') as f:
+    with open(f"{SESSIONS_DIR}{args.session}/{ts}.json", "w", encoding="utf-8") as f:
         json.dump(messages, f, indent=2)
 
     # Trim history based on token limits (max_tokens)
@@ -89,7 +92,7 @@ def trim_context(args, messages: list, max_tokens: int) -> list:
 
 def manage_sessions(args):
     """Create, retrieve, and manage session state."""
-    # if no specific session is requested, (session == agentix_session) then summarize 
+    # if no specific session is requested, (session == agentix_session) then summarize
     # the prompt and add it to the sessions metadata file
     history = []
     print((f"Managing session: {args.session}"), file=sys.stderr)
@@ -99,28 +102,32 @@ def manage_sessions(args):
             # summarize_user_prompt is called from api_client.py to avoid circular imports
 
             try:
-                with open(SESSIONS_METADATA_FILE, "r", encoding='utf-8') as f:
+                with open(SESSIONS_METADATA_FILE, "r", encoding="utf-8") as f:
                     sessions = json.load(f)
             except FileNotFoundError:
                 sessions = {"sessions": []}
 
-            print("Debug: Calling summarize_user_prompt with args:", args, file=sys.stderr)
+            print(
+                "Debug: Calling summarize_user_prompt with args:", args, file=sys.stderr
+            )
             summarize_user_prompt(args)
 
-            sessions["sessions"].append({
-                "session_id": args.session,
-                "model": args.model,
-                "created_at": datetime.now(UTC).isoformat(),
-            })
+            sessions["sessions"].append(
+                {
+                    "session_id": args.session,
+                    "model": args.model,
+                    "created_at": datetime.now(UTC).isoformat(),
+                }
+            )
 
-            with open(SESSIONS_METADATA_FILE, "w", encoding='utf-8') as f:
+            with open(SESSIONS_METADATA_FILE, "w", encoding="utf-8") as f:
                 json.dump(sessions, f, indent=2)
                 print(f"Session {args.session} created.", file=sys.stderr)
         case "__continue":
             # continue the session
             print("Continuing previous session...", file=sys.stderr)
             try:
-                with open(SESSIONS_METADATA_FILE, "r", encoding='utf-8') as f:
+                with open(SESSIONS_METADATA_FILE, "r", encoding="utf-8") as f:
                     sessions = json.load(f)
             except FileNotFoundError:
                 print("No previous sessions found.", file=sys.stderr)
@@ -128,7 +135,9 @@ def manage_sessions(args):
             # get the last session
             if sessions["sessions"]:
                 if args.debug:
-                    print("Continuing session:", sessions["sessions"][-1], file=sys.stderr)
+                    print(
+                        "Continuing session:", sessions["sessions"][-1], file=sys.stderr
+                    )
                 args.session = sessions["sessions"][-1]["session_id"]
                 # Continue with the same model if not specified
                 if not args.model:
@@ -141,22 +150,19 @@ def manage_sessions(args):
 
 def update_session(args, history: list, response: str):
     """Update session history with the latest interaction."""
-    #history = get_session_history(args.session) or []
+    # history = get_session_history(args.session) or []
 
     # Append user message
-    #user_message = next((msg for msg in payload["messages"] if msg["role"] == "user"), None)
-    #if user_message:
+    # user_message = next((msg for msg in payload["messages"] if msg["role"] == "user"), None)
+    # if user_message:
     #    history.append(user_message)
 
     # Append assistant message
-    assistant_message = {
-        "role": "assistant",
-        "content": response
-    }
+    assistant_message = {"role": "assistant", "content": response}
     history.append(assistant_message)
 
     # Save updated history
     os.makedirs(f"{SESSIONS_DIR}{args.session}", exist_ok=True)
     ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    with open(f"{SESSIONS_DIR}{args.session}/{ts}.json", 'w', encoding='utf-8') as f:
+    with open(f"{SESSIONS_DIR}{args.session}/{ts}.json", "w", encoding="utf-8") as f:
         json.dump(history, f, indent=2)

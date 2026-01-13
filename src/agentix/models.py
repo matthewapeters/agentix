@@ -1,8 +1,10 @@
 # Model management for Agentix CLI
 
-import sys
 import json
+import sys
+
 import requests
+
 from .constants import OLLAMA_API_BASE, OLLAMA_MODELS_ENDPOINT
 
 
@@ -10,17 +12,18 @@ def get_models(args):
     """Fetch available models from Ollama API."""
     result = requests.get(f"{OLLAMA_API_BASE}{OLLAMA_MODELS_ENDPOINT}")
     models_json = result.json()
-    
+
     if args.debug:
         print("Available models:", file=sys.stderr)
         print(json.dumps(models_json, indent=2), file=sys.stderr)
         print(f"Filtering models with prefix: {args.model}", file=sys.stderr)
 
-    models = [m 
-              for m in models_json["models"] 
-              # filter based on model_name if provided
-              if (args.model and m["name"].startswith(args.model)) or (not args.model)
-              ]
+    models = [
+        m
+        for m in models_json["models"]
+        # filter based on model_name if provided
+        if (args.model and m["name"].startswith(args.model)) or (not args.model)
+    ]
     # return the first matching model or default to the first model
     if models and len(models) == 1:
         return models
@@ -51,7 +54,10 @@ def get_model(args) -> int:
     models = get_models(args)
     if len(models) > 1:
         if args.debug:
-            print(f"Multiple models found matching '{args.model}':\n{json.dumps(models, indent=2)}", file=sys.stderr)
+            print(
+                f"Multiple models found matching '{args.model}':\n{json.dumps(models, indent=2)}",
+                file=sys.stderr,
+            )
             print(f"Using the first model found: {models[0]['name']}", file=sys.stderr)
     model = models[0]
     if args.debug:
@@ -62,6 +68,8 @@ def get_model(args) -> int:
     except Exception as e:
         if args.debug:
             print(json.dumps(model, indent=2), file=sys.stderr)
-        raise ValueError(f"Invalid parameter size format: {model['details']['parameter_size']}")
+        raise ValueError(
+            f"Invalid parameter size format: {model['details']['parameter_size']}"
+        )
     args.model = model["name"]
     return max_tokens
