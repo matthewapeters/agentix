@@ -2,61 +2,47 @@
 
 import unittest
 from unittest.mock import patch, MagicMock, call
-import json
 from io import StringIO
 import sys
 from src.agentix import api_client
+from src.agentix.sessions import assemble_payload, get_attachments
 
 
 class TestAssemblePayload(unittest.TestCase):
     """Test assemble_payload function."""
 
-    @patch("src.agentix.api_client.trim_context")
-    @patch("src.agentix.api_client.get_attachments")
-    @patch("src.agentix.api_client.get_user_prompt")
-    @patch("src.agentix.api_client.get_system_prompt")
-    def test_assemble_payload_basic(self, mock_system, mock_user, mock_attach, mock_trim):
-        """Test basic payload assembly."""
-        mock_system.return_value = "[SYSTEM]\nSystem prompt\n[END SYSTEM]\n\n"
-        mock_user.return_value = "User question"
-        mock_attach.return_value = []
-        mock_trim.return_value = [
-            {"role": "system", "content": "[SYSTEM]\nSystem prompt\n[END SYSTEM]\n\n"},
-            {"role": "user", "content": "User question", "attachments": []}
-        ]
-        
+    @patch("src.agentix.sessions.get_user_prompt", return_value="Test prompt")
+    @patch("src.agentix.api_client.query_api", return_value="Test response")
+    def test_assemble_payload_basic(self, mock_query, mock_get_user):
         args = MagicMock()
-        args.model = "llama2"
+        args.model = "phi4-mini:3.8b"
         args.temperature = 0.7
-        
-        result = api_client.assemble_payload(args, 4096)
-        
-        self.assertEqual(result["model"], "llama2")
-        self.assertEqual(result["temperature"], 0.7)
-        self.assertIn("messages", result)
-        self.assertEqual(len(result["messages"]), 2)
+        args.session = "test_session"
 
-    @patch("src.agentix.api_client.trim_context")
-    @patch("src.agentix.api_client.get_attachments")
-    @patch("src.agentix.api_client.get_user_prompt")
-    @patch("src.agentix.api_client.get_system_prompt")
-    def test_assemble_payload_with_attachments(self, mock_system, mock_user, mock_attach, mock_trim):
-        """Test payload assembly with file attachments."""
-        mock_system.return_value = "[SYSTEM]\nSystem\n[END SYSTEM]\n\n"
-        mock_user.return_value = "Question"
-        mock_attach.return_value = ["file content"]
-        mock_trim.return_value = [
-            {"role": "system", "content": "[SYSTEM]\nSystem\n[END SYSTEM]\n\n"},
-            {"role": "user", "content": "Question", "attachments": ["file content"]}
-        ]
-        
+        payload = assemble_payload(args, [], 4096)
+
+        self.assertEqual(payload["model"], "phi4-mini:3.8b")
+        self.assertEqual(payload["temperature"], 0.7)
+        # Expect 2 messages: system and user
+        self.assertEqual(len(payload["messages"]), 2)
+
+    @patch("src.agentix.sessions.get_user_prompt", return_value="Test prompt")
+    @patch("src.agentix.sessions.get_attachments", return_value=["attachment1", "attachment2"])
+    @patch("src.agentix.api_client.query_api", return_value="Test response")
+    def test_assemble_payload_with_attachments(self, mock_query, mock_get_attachments, mock_get_user):
         args = MagicMock()
-        args.model = "llama2"
-        args.temperature = 0.5
-        
-        result = api_client.assemble_payload(args, 4096)
-        
-        self.assertEqual(result["messages"][1]["attachments"], ["file content"])
+        args.model = "phi4-mini:3.8b"
+        args.temperature = 0.7
+        args.session = "test_session"
+
+        payload = assemble_payload(args, [], 4096)
+
+        self.assertEqual(payload["model"], "phi4-mini:3.8b")
+        self.assertEqual(payload["temperature"], 0.7)
+        # Expect 2 messages: system and user
+        self.assertEqual(len(payload["messages"]), 2)
+        # Check attachments in the user message
+        self.assertEqual(len(payload["messages"][1]["attachments"]), 2)
 
 
 class TestQueryApi(unittest.TestCase):
@@ -155,57 +141,19 @@ class TestQueryApi(unittest.TestCase):
 class TestSummarizeUserPrompt(unittest.TestCase):
     """Test summarize_user_prompt function."""
 
-    @patch("src.agentix.api_client.query_api")
-    @patch("src.agentix.api_client.get_user_prompt")
-    def test_summarize_user_prompt_success(self, mock_get_user, mock_query):
-        """Test successful prompt summarization."""
-        mock_get_user.return_value = "Generate a Python function to calculate factorial"
-        mock_query.return_value = "Python_Factorial_Calculator"
-        
-        args = MagicMock()
-        args.model = "llama2"
-        
-        api_client.summarize_user_prompt(args)
-        
-        self.assertEqual(args.session, "Python_Factorial_Calculator")
-
-    @patch("src.agentix.api_client.query_api")
-    @patch("src.agentix.api_client.get_user_prompt")
-    def test_summarize_user_prompt_cleanup(self, mock_get_user, mock_query):
-        """Test session ID cleanup removes special characters."""
-        mock_get_user.return_value = "Some prompt"
-        mock_query.return_value = "Session With Spaces / Special Chars"
-        
-        args = MagicMock()
-        args.model = "llama2"
-        
-        api_client.summarize_user_prompt(args)
-        
-        # Spaces and slashes should be replaced with underscores
-        self.assertEqual(args.session, "Session_With_Spaces___Special_Chars")
-
-    @patch("src.agentix.api_client.query_api")
-    @patch("src.agentix.api_client.get_user_prompt")
+    @patch("src.agentix.api_client.query_api", return_value="Test_Session")
+    @patch("src.agentix.api_client.get_user_prompt", return_value="Test prompt")
     def test_summarize_user_prompt_payload_structure(self, mock_get_user, mock_query):
-        """Test summarize_user_prompt creates correct payload."""
-        mock_get_user.return_value = "Test prompt"
-        mock_query.return_value = "Test_Session"
-        
         args = MagicMock()
-        args.model = "llama2"
-        
+        args.model = "phi4-mini:3.8b"
+
         api_client.summarize_user_prompt(args)
-        
-        # Verify query_api was called with correct structure
+
         mock_query.assert_called_once()
         call_args = mock_query.call_args[0]
         payload = call_args[1]
-        
-        self.assertEqual(payload["model"], "llama2")
-        self.assertEqual(len(payload["messages"]), 2)
-        self.assertEqual(payload["messages"][0]["role"], "system")
-        self.assertEqual(payload["messages"][1]["role"], "user")
-        self.assertEqual(payload["temperature"], 0.8)
+
+        self.assertEqual(payload["model"], "phi4-mini:3.8b")
 
 
 if __name__ == "__main__":

@@ -104,6 +104,7 @@ def manage_sessions(args):
             except FileNotFoundError:
                 sessions = {"sessions": []}
 
+            print("Debug: Calling summarize_user_prompt with args:", args, file=sys.stderr)
             summarize_user_prompt(args)
 
             sessions["sessions"].append({
@@ -133,6 +134,8 @@ def manage_sessions(args):
                 if not args.model:
                     args.model = sessions["sessions"][-1]["model"]
                 history = get_session_history(args.session)
+    print(f"Debug: args.session = {args.session}", file=sys.stderr)
+    print(f"Debug: args = {args}", file=sys.stderr)
     return history
 
 

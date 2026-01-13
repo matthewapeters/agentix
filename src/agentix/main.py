@@ -123,6 +123,8 @@ def main():
     max_tokens = get_model(args)
 
     # Manage session state
+    print(f"Debug: args.session = {args.session}", file=sys.stderr)
+    print("Debug: Invoking manage_sessions", file=sys.stderr)
     history = manage_sessions(args)
 
     # Assemble payload and query API
