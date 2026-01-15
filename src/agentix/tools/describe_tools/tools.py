@@ -8,6 +8,7 @@ from typing import Dict, List
 import libcst as cst
 
 from .tool_extractor import ToolExtractor
+from .tool_spec import ToolSpec
 
 
 def extract_tools_from_code(source: str) -> List[Dict]:
@@ -36,7 +37,7 @@ def extract_tools_from_file(path: str) -> List[Dict]:
 
 
 # Optional: format for OpenAI "tools" (function calling) style
-def to_openai_tools(tools: List[Dict]) -> List[Dict]:
+def to_openai_tools(tools: List[ToolSpec]) -> List[Dict]:
     """
     Docstring for to_openai_tools
 
@@ -51,12 +52,12 @@ def to_openai_tools(tools: List[Dict]) -> List[Dict]:
             {
                 "type": "function",
                 "function": {
-                    "name": t["qualified_name"].replace(
+                    "name": t.qualified_name.replace(
                         ".", "__"
                     ),  # flatten for API constraints
-                    "description": t.get("description")
-                    or (t.get("docstring") or "")[:300],
-                    "parameters": t["parameters_schema"],
+                    "description": t.description
+                    or (t.docstring or "")[:300],
+                    "parameters": t.parameters_schema,
                 },
             }
         )
