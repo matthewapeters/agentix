@@ -1,8 +1,9 @@
 """Tests for prompts module."""
 
-import unittest
-from unittest.mock import patch, MagicMock, mock_open
 import glob as glob_module
+import unittest
+from unittest.mock import MagicMock, mock_open, patch
+
 from agentix import prompts
 from agentix.constants import AGENTIX_HOME
 
@@ -33,11 +34,11 @@ class TestGetSystemPrompt(unittest.TestCase):
         """Test loading multiple system prompts."""
         mock_glob.return_value = [
             f"{AGENTIX_HOME}/system_prompts/python_coder.md",
-            f"{AGENTIX_HOME}/system_prompts/structured_response.md"
+            f"{AGENTIX_HOME}/system_prompts/structured_response.md",
         ]
         mock_get_file.side_effect = [
             "adhere to the following guidelines",
-            "Keys in Dict/Object must be one of:"
+            "Keys in Dict/Object must be one of:",
         ]
 
         args = MagicMock()
@@ -59,7 +60,7 @@ class TestGetSystemPrompt(unittest.TestCase):
         args.system = None
 
         result = prompts.get_system_prompt(args)
-        
+
         self.assertIn("[SYSTEM]", result)
         self.assertIn("[END SYSTEM]", result)
 
@@ -73,7 +74,7 @@ class TestGetUserPrompt(unittest.TestCase):
         args.user = ["What is Python?"]
 
         result = prompts.get_user_prompt(args)
-        
+
         self.assertEqual(result, "What is Python?")
 
     def test_get_user_prompt_multiple(self):
@@ -82,7 +83,7 @@ class TestGetUserPrompt(unittest.TestCase):
         args.user = ["First question", "Second question", "Third question"]
 
         result = prompts.get_user_prompt(args)
-        
+
         self.assertEqual(result, "First question\nSecond question\nThird question")
 
     def test_get_user_prompt_none(self):
@@ -91,7 +92,7 @@ class TestGetUserPrompt(unittest.TestCase):
         args.user = None
 
         result = prompts.get_user_prompt(args)
-        
+
         self.assertEqual(result, "")
 
     def test_get_user_prompt_empty_list(self):
@@ -100,14 +101,18 @@ class TestGetUserPrompt(unittest.TestCase):
         args.user = []
 
         result = prompts.get_user_prompt(args)
-        
+
         self.assertEqual(result, "")
 
 
 class TestGetPrompts(unittest.TestCase):
     """Test get_prompts function."""
 
-    @patch("builtins.open", new_callable=mock_open, read_data="# Python Coder\nGenerate Python code\n\nGuidelines:")
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data="# Python Coder\nGenerate Python code\n\nGuidelines:",
+    )
     @patch("glob.glob")
     def test_get_prompts_single(self, mock_glob, mock_file):
         """Test getting single prompt metadata."""
@@ -128,13 +133,13 @@ class TestGetPrompts(unittest.TestCase):
         """Test getting multiple prompt metadata."""
         mock_glob.return_value = [
             f"{AGENTIX_HOME}/system_prompts/python_coder.md",
-            f"{AGENTIX_HOME}/system_prompts/debug.md"
+            f"{AGENTIX_HOME}/system_prompts/debug.md",
         ]
 
         # Setup different content for each file
         mock_file.return_value.__enter__.return_value.readlines.side_effect = [
             ["# Python Coder\n", "Generate code\n", "\n", "More content\n"],
-            ["# Debug\n", "Debug guidelines\n", "\n", "More content\n"]
+            ["# Debug\n", "Debug guidelines\n", "\n", "More content\n"],
         ]
 
         args = MagicMock()
@@ -150,12 +155,12 @@ class TestGetPrompts(unittest.TestCase):
     def test_get_prompts_empty(self, mock_glob):
         """Test when no prompts are available."""
         mock_glob.return_value = []
-        
+
         args = MagicMock()
         args.debug = False
 
         result = prompts.get_prompts(args)
-        
+
         self.assertEqual(result, {})
 
 

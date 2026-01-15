@@ -1,12 +1,13 @@
 """Tests for main CLI module."""
 
-import unittest
-from unittest.mock import patch, MagicMock, call
 import json
 import sys
+import unittest
 from io import StringIO
-from agentix.main import main
+from unittest.mock import MagicMock, call, patch
+
 from agentix.api_client import summarize_user_prompt
+from agentix.main import main
 
 
 class TestMainArguments(unittest.TestCase):
@@ -16,14 +17,11 @@ class TestMainArguments(unittest.TestCase):
     @patch("sys.argv", ["agentix", "--list-models"])
     def test_list_models_argument(self, mock_get_models):
         """Test --list-models argument."""
-        mock_get_models.return_value = [
-            {"name": "llama2"},
-            {"name": "mistral"}
-        ]
-        
+        mock_get_models.return_value = [{"name": "llama2"}, {"name": "mistral"}]
+
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             main()
-        
+
         output = json.loads(mock_stdout.getvalue())
         self.assertEqual(len(output), 2)
 
@@ -33,12 +31,12 @@ class TestMainArguments(unittest.TestCase):
         """Test --list-prompts argument."""
         mock_get_prompts.return_value = {
             "python_coder": ["# Python", "Coder"],
-            "debug": ["# Debug", "Instructions"]
+            "debug": ["# Debug", "Instructions"],
         }
-        
+
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             main()
-        
+
         output = json.loads(mock_stdout.getvalue())
         self.assertIn("python_coder", output)
 
@@ -48,12 +46,12 @@ class TestMainArguments(unittest.TestCase):
         """Test --list-sessions argument."""
         mock_open.return_value.__enter__.return_value.readlines.return_value = [
             '{"session_id": "test1"}\n',
-            '{"session_id": "test2"}\n'
+            '{"session_id": "test2"}\n',
         ]
-        
+
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             main()
-        
+
         output = mock_stdout.getvalue()
         self.assertIn("session", output)
 
@@ -63,7 +61,7 @@ class TestMainArguments(unittest.TestCase):
         """Test --list-sessions when no sessions exist."""
         with patch("sys.stderr", new_callable=StringIO) as mock_stderr:
             main()
-        
+
         self.assertIn("No sessions found", mock_stderr.getvalue())
 
 
@@ -72,52 +70,67 @@ class TestMainFlow(unittest.TestCase):
 
     @patch("agentix.main.query_api")
     @patch("agentix.main.assemble_payload")
-    @patch("agentix.main.manage_sessions", return_value=[{"role": "user", "content": "Test"}])
+    @patch(
+        "agentix.main.manage_sessions",
+        return_value=[{"role": "user", "content": "Test"}],
+    )
     @patch("agentix.main.get_model", return_value=4096)
-    @patch("sys.argv", [
-        "agentix",
-        "--user", "What is Python?",
-        "--model", "llama2",
-        "--with-front-end"
-    ])
-    def test_main_with_frontend(self, mock_get_model, mock_manage, mock_assemble, mock_query):
+    @patch(
+        "sys.argv",
+        [
+            "agentix",
+            "--user",
+            "What is Python?",
+            "--model",
+            "llama2",
+            "--with-front-end",
+        ],
+    )
+    def test_main_with_frontend(
+        self, mock_get_model, mock_manage, mock_assemble, mock_query
+    ):
         """Test main flow with frontend flag."""
         mock_assemble.return_value = {"model": "llama2", "messages": []}
         mock_query.return_value = "Python is a programming language"
-        
+
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             main()
-        
+
         output = mock_stdout.getvalue()
         self.assertIn("Python is a programming language", output)
         mock_query.assert_called_once()
 
-    @patch("agentix.main.manage_sessions", return_value=[{"role": "user", "content": "Test"}])
+    @patch(
+        "agentix.main.manage_sessions",
+        return_value=[{"role": "user", "content": "Test"}],
+    )
     @patch("agentix.main.get_model", return_value=4096)
-    @patch("sys.argv", [
-        "agentix",
-        "--user", "Test",
-        "--model", "llama2"
-    ])
+    @patch("sys.argv", ["agentix", "--user", "Test", "--model", "llama2"])
     def test_main_without_frontend(self, mock_get_model, mock_manage):
         """Test main flow without frontend flag."""
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             main()
-        
+
         # Should not print output without --with-front-end
         output = mock_stdout.getvalue()
         # Output should be minimal or empty
 
     @patch("agentix.main.get_model", return_value=4096)
-    @patch("sys.argv", [
-        "agentix",
-        "--user", "Test prompt",
-        "--debug", "True",
-    ])
+    @patch(
+        "sys.argv",
+        [
+            "agentix",
+            "--user",
+            "Test prompt",
+            "--debug",
+            "True",
+        ],
+    )
     def test_main_default_session(self, mock_get_model):
         """Test main with default session ID."""
-        with patch("agentix.main.query_api", return_value={"response": "Test response"}):
-
+        with patch(
+            "agentix.main.query_api", return_value={"response": "Test response"}
+        ):
 
             # Add debug statement to print sys.argv value
             print("Debug: sys.argv before main:", sys.argv)
@@ -132,45 +145,51 @@ class TestMainFlow(unittest.TestCase):
                 mock_summarize.assert_called_once()
             print("Debug: Test arguments:", sys.argv)
 
-    @patch("agentix.main.manage_sessions", return_value=[{"role": "user", "content": "Test"}])
+    @patch(
+        "agentix.main.manage_sessions",
+        return_value=[{"role": "user", "content": "Test"}],
+    )
     @patch("agentix.main.get_model", return_value=4096)
-    @patch("sys.argv", [
-        "agentix",
-        "--user", "Test",
-        "--session", "custom_session"
-    ])
+    @patch("sys.argv", ["agentix", "--user", "Test", "--session", "custom_session"])
     def test_main_custom_session(self, mock_get_model, mock_manage):
         """Test main with custom session ID."""
         with patch("agentix.api_client.summarize_user_prompt") as mock_summarize:
             mock_summarize.return_value = None
             main()
-        
+
         # summarize_user_prompt should NOT be called for custom session
         mock_summarize.assert_not_called()
 
-    @patch("agentix.main.assemble_payload", return_value={"model": "phi4-mini:3.8b", "messages": []})
-    @patch("agentix.main.manage_sessions", return_value=[{"role": "user", "content": "Test"}])
+    @patch(
+        "agentix.main.assemble_payload",
+        return_value={"model": "phi4-mini:3.8b", "messages": []},
+    )
+    @patch(
+        "agentix.main.manage_sessions",
+        return_value=[{"role": "user", "content": "Test"}],
+    )
     @patch("agentix.main.get_model", return_value=4096)
-    @patch("sys.argv", [
-        "agentix",
-        "--user", "Test",
-        "--model", "phi4-mini:3.8b",
-        "--temp", "0.8"
-    ])
-    def test_main_temperature_argument(self, mock_get_model, mock_manage, mock_assemble):
+    @patch(
+        "sys.argv",
+        ["agentix", "--user", "Test", "--model", "phi4-mini:3.8b", "--temp", "0.8"],
+    )
+    def test_main_temperature_argument(
+        self, mock_get_model, mock_manage, mock_assemble
+    ):
         """Test temperature argument is passed correctly."""
-        with patch("agentix.main.query_api", return_value={"response": "Test response"}):
+        with patch(
+            "agentix.main.query_api", return_value={"response": "Test response"}
+        ):
             main()
 
     @patch("agentix.main.get_model", return_value=4096)
-    @patch("sys.argv", [
-        "agentix",
-        "--user", "Test",
-        "--debug", "True"
-    ])
+    @patch("sys.argv", ["agentix", "--user", "Test", "--debug", "True"])
     def test_main_debug_flag(self, mock_get_model):
         """Test debug flag is set correctly."""
-        with patch("agentix.main.manage_sessions", return_value=[{"role": "user", "content": "Test"}]):
+        with patch(
+            "agentix.main.manage_sessions",
+            return_value=[{"role": "user", "content": "Test"}],
+        ):
             main()
 
 

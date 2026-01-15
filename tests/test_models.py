@@ -1,8 +1,9 @@
 """Tests for models module."""
 
-import unittest
-from unittest.mock import patch, MagicMock
 import json
+import unittest
+from unittest.mock import MagicMock, patch
+
 from src.agentix import models
 
 
@@ -65,13 +66,13 @@ class TestGetModels(unittest.TestCase):
             ]
         }
         mock_get.return_value = mock_response
-        
+
         args = MagicMock()
         args.debug = False
         args.model = None
 
         result = models.get_models(args)
-        
+
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]["name"], "llama2")
 
@@ -87,13 +88,13 @@ class TestGetModels(unittest.TestCase):
             ]
         }
         mock_get.return_value = mock_response
-        
+
         args = MagicMock()
         args.debug = False
         args.model = "llama"
 
         result = models.get_models(args)
-        
+
         # The filter returns all models if multiple match the prefix
         self.assertGreaterEqual(len(result), 2)
         self.assertTrue(any("llama" in m["name"] for m in result))
@@ -109,13 +110,13 @@ class TestGetModels(unittest.TestCase):
             ]
         }
         mock_get.return_value = mock_response
-        
+
         args = MagicMock()
         args.debug = False
         args.model = "llama2"
 
         result = models.get_models(args)
-        
+
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["name"], "llama2")
 
@@ -127,17 +128,14 @@ class TestGetModel(unittest.TestCase):
     def test_get_model_success(self, mock_get_models):
         """Test successful model selection."""
         mock_get_models.return_value = [
-            {
-                "name": "llama2",
-                "details": {"parameter_size": "7B"}
-            }
+            {"name": "llama2", "details": {"parameter_size": "7B"}}
         ]
-        
+
         args = MagicMock()
         args.debug = False
 
         max_tokens = models.get_model(args)
-        
+
         self.assertEqual(max_tokens, 7000000000)
         self.assertEqual(args.model, "llama2")
 
@@ -148,12 +146,12 @@ class TestGetModel(unittest.TestCase):
             {"name": "llama2", "details": {"parameter_size": "7B"}},
             {"name": "llama-chat", "details": {"parameter_size": "7B"}},
         ]
-        
+
         args = MagicMock()
         args.debug = False
 
         max_tokens = models.get_model(args)
-        
+
         self.assertEqual(max_tokens, 7000000000)
         self.assertEqual(args.model, "llama2")
 
@@ -161,12 +159,9 @@ class TestGetModel(unittest.TestCase):
     def test_get_model_invalid_parameter_size(self, mock_get_models):
         """Test error handling for invalid parameter size."""
         mock_get_models.return_value = [
-            {
-                "name": "invalid-model",
-                "details": {"parameter_size": "invalid"}
-            }
+            {"name": "invalid-model", "details": {"parameter_size": "invalid"}}
         ]
-        
+
         args = MagicMock()
         args.debug = False
 
@@ -176,13 +171,8 @@ class TestGetModel(unittest.TestCase):
     @patch("src.agentix.models.get_models")
     def test_get_model_missing_parameter_size(self, mock_get_models):
         """Test error handling for missing parameter size."""
-        mock_get_models.return_value = [
-            {
-                "name": "model-without-size",
-                "details": {}
-            }
-        ]
-        
+        mock_get_models.return_value = [{"name": "model-without-size", "details": {}}]
+
         args = MagicMock()
         args.debug = False
 

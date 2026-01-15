@@ -1,9 +1,10 @@
 """Tests for api_client module."""
 
-import unittest
-from unittest.mock import patch, MagicMock, call
-from io import StringIO
 import sys
+import unittest
+from io import StringIO
+from unittest.mock import MagicMock, call, patch
+
 from src.agentix import api_client
 from src.agentix.sessions import assemble_payload, get_attachments
 
@@ -27,9 +28,14 @@ class TestAssemblePayload(unittest.TestCase):
         self.assertEqual(len(payload["messages"]), 2)
 
     @patch("src.agentix.sessions.get_user_prompt", return_value="Test prompt")
-    @patch("src.agentix.sessions.get_attachments", return_value=["attachment1", "attachment2"])
+    @patch(
+        "src.agentix.sessions.get_attachments",
+        return_value=["attachment1", "attachment2"],
+    )
     @patch("src.agentix.api_client.query_api", return_value="Test response")
-    def test_assemble_payload_with_attachments(self, mock_query, mock_get_attachments, mock_get_user):
+    def test_assemble_payload_with_attachments(
+        self, mock_query, mock_get_attachments, mock_get_user
+    ):
         args = MagicMock()
         args.model = "phi4-mini:3.8b"
         args.temperature = 0.7
@@ -58,20 +64,20 @@ class TestQueryApi(unittest.TestCase):
                 {
                     "message": {
                         "content": "This is the answer",
-                        "reasoning": "Some reasoning"
+                        "reasoning": "Some reasoning",
                     },
-                    "finish_reason": "stop"
+                    "finish_reason": "stop",
                 }
             ]
         }
         mock_post.return_value = mock_response
-        
+
         args = MagicMock()
         args.debug = False
         payload = {"model": "llama2", "messages": []}
-        
+
         result = api_client.query_api(args, payload)
-        
+
         self.assertEqual(result, "This is the answer")
         mock_post.assert_called_once()
 
@@ -82,14 +88,14 @@ class TestQueryApi(unittest.TestCase):
         mock_response.status_code = 500
         mock_response.text = "Internal server error"
         mock_post.return_value = mock_response
-        
+
         args = MagicMock()
         args.debug = False
         payload = {"model": "llama2", "messages": []}
-        
+
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             result = api_client.query_api(args, payload)
-        
+
         self.assertEqual(result, "")
         self.assertIn("Error", mock_stdout.getvalue())
 
@@ -101,23 +107,20 @@ class TestQueryApi(unittest.TestCase):
         mock_response.json.return_value = {
             "choices": [
                 {
-                    "message": {
-                        "content": "Answer",
-                        "reasoning": "Reasoning"
-                    },
-                    "finish_reason": "stop"
+                    "message": {"content": "Answer", "reasoning": "Reasoning"},
+                    "finish_reason": "stop",
                 }
             ]
         }
         mock_post.return_value = mock_response
-        
+
         args = MagicMock()
         args.debug = True
         payload = {"model": "llama2", "messages": []}
-        
+
         with patch("sys.stderr", new_callable=StringIO) as mock_stderr:
             api_client.query_api(args, payload)
-        
+
         debug_output = mock_stderr.getvalue()
         self.assertIn("Payload:", debug_output)
         self.assertIn("Raw response:", debug_output)
@@ -129,11 +132,11 @@ class TestQueryApi(unittest.TestCase):
         mock_response.status_code = 200
         mock_response.json.return_value = {}
         mock_post.return_value = mock_response
-        
+
         args = MagicMock()
         args.debug = False
         payload = {"model": "llama2", "messages": []}
-        
+
         with self.assertRaises((KeyError, IndexError)):
             api_client.query_api(args, payload)
 

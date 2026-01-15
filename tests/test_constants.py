@@ -1,6 +1,7 @@
 """Tests for constants module."""
 
 import unittest
+
 from src.agentix import constants
 
 
