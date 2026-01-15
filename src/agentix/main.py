@@ -11,6 +11,7 @@ from .sessions import assemble_payload, manage_sessions, update_session
 
 
 def main():
+    """agentix main entry point"""
     args = argparse.ArgumentParser(description="Agentix CLI")
     args.add_argument(
         "--list-models",
@@ -50,6 +51,7 @@ def main():
     args.add_argument("--model", type=str, dest="model", help="The model to use")
     args.add_argument(
         "--temp",
+        "--temperature",
         type=float,
         dest="temperature",
         default=DEFAULT_TEMPERATURE,
@@ -146,7 +148,7 @@ def main():
         json.dumps(agent_content_raw, indent=2).encode("utf-8").decode("unicode_escape")
     )
     update_session(args, payload["messages"], agent_content_raw)
-    if "structured_response" in args.prompts:
+    if "structured_response" in args.system:
         try:
             agent_content = json.loads(agent_content_raw)
         except json.JSONDecodeError:

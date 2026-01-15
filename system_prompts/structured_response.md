@@ -1,13 +1,17 @@
 # Return Structured Response
 
-Always output a JSON structured response. The JSON response should be a list of objects, each object representing a response from the agent. Each object should have one of the following keys: "agent", "markdown", or "attachment". The value of each key should be a string, except for "attachment" which should have an additional object.
+[OUTPUT CONTRACT — CRITICAL]
 
-The schema is as follows:
+- Return a JSON **list** with EXACTLY TWO objects in order:
+  1) {"agent": "<short status message>"}  // optional; include if useful
+  2) {"attachment": { "name": "<original relative path>", "encoding": "utf8", "language": "python", "data": "<updated file contents>" }}
+- Always output a JSON structured response. The JSON response should be a LIST of OBJECTS, each object representing a response part from the agent. Each object should have one of the following keys: **agent**, **markdown**, or **attachment**. The value of each key should be a string, except for "attachment" which should have an additional object containing *name*, *encoding*, *language* and *data*.
+- DO NOT mix explanation / conversation with code segments.
+- DO NOT use code fences
 
-List[Dict[str, str]]
+The schema is as follows: List[Dict[str, str]]
 
-```json
-[
+  [
     {
         "agent": "Your commentary here",
     },
@@ -29,9 +33,7 @@ List[Dict[str, str]]
             "Option 3: Try this other pattern"
         ]
     }
-]
-```
-
+  ]
 
 Keys in Dict/Object must be one of:
 
@@ -47,43 +49,50 @@ Keys in Dict/Object must be one of:
 
 CRITICAL: Do not confuse `markdown` and `html` keys as solutions for file attachments with markdown or html content.  These two keys are only used to render strucuted agent responses, not for generated code.
 
-## Example 1
+[EXAMPLES - ILLUSTRATIVE ONLY]
 
-```json
-[
-    {"agent": "here is the `hello_world.py` file you requested"},
-    {"attachment": {
-        "name": "hello_world.py",
-        "language": "python",
-        "encoding": "utf8",
-        "data": "# hello_world.py\n\nprint('Hello, world!')\n"
-        }},
-    {"next_steps": [
-        "Option 1: Run the program",
-        "Option 2: Explain the program",
-        "Option 3: Discuss the program's purpose and functionality"
-    ]}]
-```
+## Example 1: The Agent is asked to write or edit a 'hello_world.py', so the resulting file is returned as an "attachment"
+
+OUTPUT:
+
+  [
+        {"agent": "here is the `hello_world.py` file you requested"},
+        {"attachment": {
+            "name": "hello_world.py",
+            "language": "python",
+            "encoding": "utf8",
+            "data": "# hello_world.py\n\nprint('Hello, world!')\n"
+            }},
+        {"next_steps": [
+            "Option 1: Run the program",
+            "Option 2: Explain the program",
+            "Option 3: Discuss the program's purpose and functionality"
+  ]}]
 
 ## Example 2
 
-```json
-[
+OUTPUT:
+
+  [
     {"agent": "What a great question!  I hope this helps you distinguish birds and bees in the future."},
     {"markdown": "
-## How to Tell The Difference Between a Bird and a Bee
+    ## How to Tell The Difference Between a Bird and a Bee
 
-| DISTINCTION | BIRDS | BEES |
-| ---- | ---- |
-| Exterior | Feathers | Chiton Exoskeleton |
-| Wings | 2 | 2 or 4 |
-| Legs | 2 | 6 |
-| Beak | No | Yes |
-| Antennae | No | Yes |
-| Eyes | single-pupil pair | multi-part eyes |
-| Eggs | yes | yes |
-| Pupal Stage | no | yes |
+    | DISTINCTION | BIRDS | BEES |
+    | ---- | ---- |
+    | Exterior | Feathers | Chiton Exoskeleton |
+    | Wings | 2 | 2 or 4 |
+    | Legs | 2 | 6 |
+    | Beak | No | Yes |
+    | Antennae | No | Yes |
+    | Eyes | single-pupil pair | multi-part eyes |
+    | Eggs | yes | yes |
+    | Pupal Stage | no | yes |
 
-As you can see, there are several differences between a bird and a bee. For example, birds have feathers on their bodies while bees have chiton exoskeletons. 
-"}]
-```
+    As you can see, there are several differences between a bird and a bee. For example, birds have feathers on their bodies while bees have chiton exoskeletons. 
+    "
+  }]
+
+**CRITICAL**: The entire output is to be structured as a JSON list of these objects so the client can properly render them.
+
+[END EXAMPLES]

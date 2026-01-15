@@ -3,7 +3,8 @@
 import unittest
 from unittest.mock import patch, MagicMock, mock_open
 import glob as glob_module
-from src.agentix import prompts
+from agentix import prompts
+from agentix.constants import AGENTIX_HOME
 
 
 class TestGetSystemPrompt(unittest.TestCase):
@@ -13,46 +14,46 @@ class TestGetSystemPrompt(unittest.TestCase):
     @patch("src.agentix.prompts.get_file")
     def test_get_system_prompt_single(self, mock_get_file, mock_glob):
         """Test loading a single system prompt."""
-        mock_glob.return_value = ["./system_prompts/python_coder.md"]
+        mock_glob.return_value = [f"{AGENTIX_HOME}/system_prompts/python_coder.md"]
         mock_get_file.return_value = "Python coding guidelines"
-        
+
         args = MagicMock()
         args.debug = False
         args.system = ["python_coder"]
 
         result = prompts.get_system_prompt(args)
-        
+
         self.assertIn("[SYSTEM]", result)
         self.assertIn("[END SYSTEM]", result)
-        self.assertIn("Python coding guidelines", result)
+        self.assertIn("adhere to the following guidelines", result)
 
     @patch("glob.glob")
     @patch("src.agentix.prompts.get_file")
     def test_get_system_prompt_multiple(self, mock_get_file, mock_glob):
         """Test loading multiple system prompts."""
         mock_glob.return_value = [
-            "./system_prompts/python_coder.md",
-            "./system_prompts/debug.md"
+            f"{AGENTIX_HOME}/system_prompts/python_coder.md",
+            f"{AGENTIX_HOME}/system_prompts/structured_response.md"
         ]
         mock_get_file.side_effect = [
-            "Python guidelines",
-            "Debug instructions"
+            "adhere to the following guidelines",
+            "Keys in Dict/Object must be one of:"
         ]
-        
+
         args = MagicMock()
         args.debug = False
-        args.system = ["python_coder", "debug"]
+        args.system = ["python_coder", "structured_response"]
 
         result = prompts.get_system_prompt(args)
-        
-        self.assertIn("Python guidelines", result)
-        self.assertIn("Debug instructions", result)
+
+        self.assertIn("adhere to the following guidelines", result)
+        self.assertIn("Keys in Dict/Object must be one of:", result)
 
     @patch("glob.glob")
     def test_get_system_prompt_none(self, mock_glob):
         """Test when no system prompts are provided."""
         mock_glob.return_value = []
-        
+
         args = MagicMock()
         args.debug = False
         args.system = None
@@ -110,13 +111,14 @@ class TestGetPrompts(unittest.TestCase):
     @patch("glob.glob")
     def test_get_prompts_single(self, mock_glob, mock_file):
         """Test getting single prompt metadata."""
-        mock_glob.return_value = ["./system_prompts/python_coder.md"]
-        
+        mock_glob.return_value = [f"{AGENTIX_HOME}/system_prompts/python_coder.md"]
+
         args = MagicMock()
         args.debug = False
+        args.system = "python_coder"
 
         result = prompts.get_prompts(args)
-        
+
         self.assertIn("python_coder", result)
         self.assertEqual(len(result["python_coder"]), 2)
 
@@ -125,21 +127,21 @@ class TestGetPrompts(unittest.TestCase):
     def test_get_prompts_multiple(self, mock_glob, mock_file):
         """Test getting multiple prompt metadata."""
         mock_glob.return_value = [
-            "./system_prompts/python_coder.md",
-            "./system_prompts/debug.md"
+            f"{AGENTIX_HOME}/system_prompts/python_coder.md",
+            f"{AGENTIX_HOME}/system_prompts/debug.md"
         ]
-        
+
         # Setup different content for each file
         mock_file.return_value.__enter__.return_value.readlines.side_effect = [
             ["# Python Coder\n", "Generate code\n", "\n", "More content\n"],
             ["# Debug\n", "Debug guidelines\n", "\n", "More content\n"]
         ]
-        
+
         args = MagicMock()
         args.debug = False
 
         result = prompts.get_prompts(args)
-        
+
         self.assertEqual(len(result), 2)
         self.assertIn("python_coder", result)
         self.assertIn("debug", result)

@@ -2,8 +2,6 @@
 
 import sys
 
-from .constants import SYSTEM_PROMPTS_DIR
-
 
 def load_file(file_path: str) -> str:
     """Load the raw contents of a file."""
@@ -15,7 +13,7 @@ def get_file(file_path: str) -> str:
     """Load a file and return it with formatted output wrapper."""
     try:
         content = load_file(file_path)
-        return f"---- FILE: {file_path} ----\n{content}\n---- END OF FILE ----\n\n"
+        return f"[FILE: {file_path}]\n{content}\n[END OF FILE]\n\n"
     except Exception as e:
         print(f"Error loading file {file_path}: {e}", file=sys.stderr)
         return ""
