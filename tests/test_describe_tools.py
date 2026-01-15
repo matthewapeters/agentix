@@ -34,23 +34,16 @@ def sample_function(param1: int, param2: str = \"default\") -> bool:
         self.assertEqual(len(tools), 1)
         tool = tools[0]
         self.assertEqual(tool.name, "sample_function")
-        self.assertEqual(
-            tool.description,
-            "This is a sample function."
-        )
-        self.assertEqual(
-            tool.parameters_schema["properties"]["param1"]["type"], "int"
-        )
-        self.assertEqual(
-            tool.parameters_schema["properties"]["param2"]["type"], "str"
-        )
+        self.assertEqual(tool.description, "This is a sample function.")
+        self.assertEqual(tool.parameters_schema["properties"]["param1"]["type"], "int")
+        self.assertEqual(tool.parameters_schema["properties"]["param2"]["type"], "str")
         # Default value assertion removed; extractor does not include 'default' in schema
         self.assertEqual(tool.returns["type"], "bool")
 
     def test_extract_tools_from_file(self):
         """
         Docstring for test_extract_tools_from_file
-        
+
         :param self: Description
         """
         # Assuming a temporary file is created for testing
@@ -68,10 +61,7 @@ def another_function(x: float) -> str:
         self.assertEqual(len(tools), 1)
         tool = tools[0]
         self.assertEqual(tool.name, "another_function")
-        self.assertEqual(
-            tool.description,
-            "Another example function."
-        )
+        self.assertEqual(tool.description, "Another example function.")
         self.assertEqual(tool.parameters_schema["properties"]["x"]["type"], "float")
         self.assertEqual(tool.returns["type"], "str")
 

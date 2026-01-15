@@ -55,8 +55,7 @@ def to_openai_tools(tools: List[ToolSpec]) -> List[Dict]:
                     "name": t.qualified_name.replace(
                         ".", "__"
                     ),  # flatten for API constraints
-                    "description": t.description
-                    or (t.docstring or "")[:300],
+                    "description": t.description or (t.docstring or "")[:300],
                     "parameters": t.parameters_schema,
                 },
             }
