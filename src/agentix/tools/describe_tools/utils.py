@@ -2,6 +2,7 @@ from typing import Optional
 import ast as pyast
 import libcst as cst
 
+
 def _extract_docstring_from_function(fn: cst.FunctionDef) -> Optional[str]:
     """
     Return the function docstring if present (entire content, including multi-line).
@@ -15,17 +16,19 @@ def _extract_docstring_from_function(fn: cst.FunctionDef) -> Optional[str]:
         and isinstance(first.body[0], cst.Expr)
         and isinstance(first.body[0].value, cst.SimpleString)
     ):
-        raw = first.body[0].value.value  # includes quotes
-        print(f"Raw docstring: {raw}")  # Debug log
+        raw = first.body[0].value  # includes quotes
+        raw_value = raw.value
         try:
             # Use ast.literal_eval to safely unescape multi-line string literals
-            # Ensure all lines are preserved and unescaped
-            unescaped_docstring = pyast.literal_eval(raw)
+            unescaped_docstring = pyast.literal_eval(raw_value)
             return unescaped_docstring.strip()
         except Exception:
-            # Fallback: return raw string with stripped quotes
-            return raw.strip("'")
+            # Fallback: manually process multi-line strings
+            lines = raw_value.strip("'\"").splitlines()
+            processed_lines = [line.strip() for line in lines if line.strip()]
+            return "\n".join(processed_lines)
     return None
+
 
 def _docstring_summary(doc: Optional[str]) -> Optional[str]:
     if not doc:
