@@ -2,11 +2,7 @@
 Unit test for agentix.tools.describe_tools.to_openai_tools
 """
 
-import os
-import sys
 import unittest
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
 from agentix.tools.describe_tools import ToolSpec, to_openai_tools
 

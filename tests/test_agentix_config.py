@@ -2,9 +2,7 @@
 Docstring for tests.test_agentix_config
 """
 
-import os
-
-from src.agentix.agentix_config import AgentixConfig
+from agentix.agentix_config import AgentixConfig
 
 
 def test_agentixconfig_defaults():

@@ -5,7 +5,7 @@ import unittest
 from io import StringIO
 from unittest.mock import patch
 
-from agentix.agentix_config import AgentixConfig
+from agentix import AgentixConfig
 from agentix.main import main
 
 # pylint: disable=too-many-arguments, unused-argument, unused-variable

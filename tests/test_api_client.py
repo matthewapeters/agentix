@@ -1,12 +1,11 @@
 """Tests for api_client module."""
 
-import sys
 import unittest
 from io import StringIO
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
-from src.agentix import api_client
-from src.agentix.sessions import assemble_payload, get_attachments
+from agentix import api_client
+from agentix.sessions import assemble_payload
 
 
 class TestAssemblePayload(unittest.TestCase):

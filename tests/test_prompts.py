@@ -1,6 +1,5 @@
 """Tests for prompts module."""
 
-import glob as glob_module
 import unittest
 from unittest.mock import MagicMock, mock_open, patch
 

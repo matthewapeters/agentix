@@ -4,7 +4,7 @@ import unittest
 from io import StringIO
 from unittest.mock import MagicMock, mock_open, patch
 
-from src.agentix import file_utils
+from agentix import file_utils
 
 # pylint: disable=unused-argument
 

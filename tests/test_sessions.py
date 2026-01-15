@@ -2,10 +2,9 @@
 
 import json
 import unittest
-from datetime import UTC, datetime
 from unittest.mock import MagicMock, mock_open, patch
 
-from src.agentix import sessions
+from agentix import sessions
 
 
 class TestGetSessionHistory(unittest.TestCase):

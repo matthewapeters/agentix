@@ -1,10 +1,9 @@
 """Tests for models module."""
 
-import json
 import unittest
 from unittest.mock import MagicMock, patch
 
-from src.agentix import models
+from agentix import models
 
 
 class TestParseParameterSize(unittest.TestCase):

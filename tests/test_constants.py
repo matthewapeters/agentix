@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.agentix import constants
+from agentix import constants
 
 
 class TestConstants(unittest.TestCase):
