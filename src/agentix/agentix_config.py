@@ -3,8 +3,11 @@ Docstring for agentix.agentix_config
 """
 
 import argparse
+import os
 from argparse import Namespace
 from dataclasses import dataclass
+
+import tomli
 
 from .constants import DEFAULT_SESSION_ID, DEFAULT_TEMPERATURE
 
@@ -145,3 +148,41 @@ class AgentixConfig:
             port=args.port,
             with_frontend=args.with_frontend,
         )
+
+    # Helper functions for config discovery and merging
+    @staticmethod
+    def find_local_config(filename="agentix_config.toml") -> str | None:
+        """
+        Search for a local .toml config file in the current working directory.
+        Returns the path if found, else None.
+        """
+        cwd = os.getcwd()
+        local_path = os.path.join(cwd, filename)
+        if os.path.isfile(local_path):
+            return local_path
+        return None
+
+    @staticmethod
+    def load_local_config(filename="agentix_config.toml"):
+        """
+        Loads and parses a local .toml config file if present.
+        Returns a dict of config values, or empty dict if not found.
+        """
+        path = AgentixConfig.find_local_config(filename)
+        if path:
+            with open(path, "rb") as f:
+                return tomli.load(f)
+        return {}
+
+    @staticmethod
+    def merge_configs(base_config, override_config):
+        """
+        Merge override_config into base_config, overriding values.
+        """
+        merged = base_config.copy()
+        for k, v in override_config.items():
+            if isinstance(v, dict) and k in merged and isinstance(merged[k], dict):
+                merged[k] = AgentixConfig.merge_configs(merged[k], v)
+            else:
+                merged[k] = v
+        return merged
