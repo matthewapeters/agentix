@@ -10,6 +10,7 @@ from agentix.main import main
 
 # pylint: disable=too-many-arguments, unused-argument, unused-variable
 
+
 class TestMainArguments(unittest.TestCase):
     """Test main CLI argument parsing."""
 

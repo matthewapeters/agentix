@@ -6,7 +6,8 @@ from unittest.mock import MagicMock, mock_open, patch
 
 from src.agentix import file_utils
 
-# pylint: disable=too-many-classes, unused-argument
+# pylint: disable=unused-argument
+
 
 class TestLoadFile(unittest.TestCase):
     """Test load_file function."""
