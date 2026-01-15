@@ -14,7 +14,7 @@ import libcst as cst
 
 def _extract_docstring_from_function(fn: cst.FunctionDef) -> Optional[str]:
     """
-    Return the function docstring if present (first statement literal string).
+    Return the function docstring if present (entire content, including multi-line).
     """
     if not isinstance(fn.body, cst.IndentedBlock) or not fn.body.body:
         return None
