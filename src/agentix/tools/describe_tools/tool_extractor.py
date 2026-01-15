@@ -27,6 +27,7 @@ class ToolExtractor:
         collector = _ToolCollector(module, debug=self.debug)
         module.visit(collector)
         self.tools = collector.tools
+        return self.tools
 
     def extract_tools_from_file(self, path: str) -> List[Dict]:
         """

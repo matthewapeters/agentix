@@ -24,4 +24,4 @@ if __name__ == "__main__":
     tools = extract_tools_from_file(file)
     print(json.dumps(tools, indent=2, ensure_ascii=False))
     # To OpenAI-style:
-    # print(json.dumps(to_openai_tools(tools), indent=2, ensure_ascii=False))
+    print(json.dumps(to_openai_tools(tools), indent=2, ensure_ascii=False))
