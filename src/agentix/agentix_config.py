@@ -33,6 +33,25 @@ class AgentixConfig:
     port: int = 8000
     with_frontend: bool = False
 
+    @property
+    def action(self) -> str:
+        """
+        Docstring for action
+
+        :param self: Description
+        :return: Description
+        :rtype: str
+        """
+        if self.list_models:
+            return "list_models"
+        if self.list_sessions:
+            return "list_sessions"
+        if self.list_prompts:
+            return "list_prompts"
+        if self.serve:
+            return "serve"
+        return "run_agentix"
+
     @staticmethod
     def cli_arguments() -> "AgentixConfig":
         """

@@ -63,11 +63,11 @@ class TestMainArguments(unittest.TestCase):
 class TestMainFlow(unittest.TestCase):
     """Test main CLI flow."""
 
-    @patch("agentix.main.update_session")
-    @patch("agentix.main.query_api")
-    @patch("agentix.main.assemble_payload")
-    @patch("agentix.main.manage_sessions")
-    @patch("agentix.main.get_model", return_value=4096)
+    @patch("agentix.agent.update_session")
+    @patch("agentix.agent.query_api")
+    @patch("agentix.agent.assemble_payload")
+    @patch("agentix.agent.manage_sessions")
+    @patch("agentix.agent.get_model", return_value=4096)
     def test_main_with_frontend(
         self,
         mock_get_model,
@@ -94,10 +94,10 @@ class TestMainFlow(unittest.TestCase):
         mock_query.assert_called_once()
 
     @patch(
-        "agentix.main.manage_sessions",
+        "agentix.agent.manage_sessions",
         return_value=[{"role": "user", "content": "Test"}],
     )
-    @patch("agentix.main.get_model", return_value=4096)
+    @patch("agentix.agent.get_model", return_value=4096)
     def test_main_without_frontend(self, _, __):
         """Test main flow without frontend flag."""
         config = AgentixConfig(user=["Test"], model="llama2", file_path=[], debug=False)
@@ -105,7 +105,7 @@ class TestMainFlow(unittest.TestCase):
             main(config)
         # Output should be minimal or empty
 
-    @patch("agentix.main.get_model", return_value=4096)
+    @patch("agentix.agent.get_model", return_value=4096)
     def test_main_default_session(self, _):
         """Test main with default session ID."""
         config = AgentixConfig(
@@ -116,17 +116,17 @@ class TestMainFlow(unittest.TestCase):
             debug=False,
         )
         with patch(
-            "agentix.main.query_api", return_value={"response": "Test response"}
+            "agentix.agent.query_api", return_value={"response": "Test response"}
         ):
             with patch("agentix.sessions.summarize_user_prompt") as mock_summarize:
                 mock_summarize.return_value = None
                 main(config)
 
     @patch(
-        "agentix.main.manage_sessions",
+        "agentix.agent.manage_sessions",
         return_value=[{"role": "user", "content": "Test"}],
     )
-    @patch("agentix.main.get_model", return_value=4096)
+    @patch("agentix.agent.get_model", return_value=4096)
     def test_main_custom_session(self, _, __):
         """Test main with custom session ID."""
         config = AgentixConfig(
@@ -138,14 +138,14 @@ class TestMainFlow(unittest.TestCase):
         mock_summarize.assert_not_called()
 
     @patch(
-        "agentix.main.assemble_payload",
+        "agentix.agent.assemble_payload",
         return_value={"model": "phi4-mini:3.8b", "messages": []},
     )
     @patch(
-        "agentix.main.manage_sessions",
+        "agentix.agent.manage_sessions",
         return_value=[{"role": "user", "content": "Test"}],
     )
-    @patch("agentix.main.get_model", return_value=4096)
+    @patch("agentix.agent.get_model", return_value=4096)
     def test_main_temperature_argument(self, *args):
         """Test temperature argument is passed correctly."""
         config = AgentixConfig(
@@ -156,18 +156,18 @@ class TestMainFlow(unittest.TestCase):
             debug=False,
         )
         with patch(
-            "agentix.main.query_api", return_value={"response": "Test response"}
+            "agentix.agent.query_api", return_value={"response": "Test response"}
         ):
             main(config)
 
-    @patch("agentix.main.get_model", return_value=4096)
+    @patch("agentix.agent.get_model", return_value=4096)
     def test_main_debug_flag(self, _):
         """Test debug flag is set correctly."""
         config = AgentixConfig(
             user=["Test"], temperature=0.7, file_path=[], debug=False
         )
         with patch(
-            "agentix.main.manage_sessions",
+            "agentix.agent.manage_sessions",
             return_value=[{"role": "user", "content": "Test"}],
         ):
             main(config)

@@ -123,7 +123,7 @@ class TestGetModels(unittest.TestCase):
 class TestGetModel(unittest.TestCase):
     """Test get_model function."""
 
-    @patch("src.agentix.models.get_models")
+    @patch("agentix.models.get_models")
     def test_get_model_success(self, mock_get_models):
         """Test successful model selection."""
         mock_get_models.return_value = [
@@ -138,7 +138,7 @@ class TestGetModel(unittest.TestCase):
         self.assertEqual(max_tokens, 7000000000)
         self.assertEqual(args.model, "llama2")
 
-    @patch("src.agentix.models.get_models")
+    @patch("agentix.models.get_models")
     def test_get_model_multiple_matches(self, mock_get_models):
         """Test model selection with multiple matches."""
         mock_get_models.return_value = [
@@ -154,7 +154,7 @@ class TestGetModel(unittest.TestCase):
         self.assertEqual(max_tokens, 7000000000)
         self.assertEqual(args.model, "llama2")
 
-    @patch("src.agentix.models.get_models")
+    @patch("agentix.models.get_models")
     def test_get_model_invalid_parameter_size(self, mock_get_models):
         """Test error handling for invalid parameter size."""
         mock_get_models.return_value = [
@@ -167,7 +167,7 @@ class TestGetModel(unittest.TestCase):
         with self.assertRaises(ValueError):
             models.get_model(args)
 
-    @patch("src.agentix.models.get_models")
+    @patch("agentix.models.get_models")
     def test_get_model_missing_parameter_size(self, mock_get_models):
         """Test error handling for missing parameter size."""
         mock_get_models.return_value = [{"name": "model-without-size", "details": {}}]

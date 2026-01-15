@@ -55,7 +55,7 @@ class TestGetFile(unittest.TestCase):
 class TestGetAttachments(unittest.TestCase):
     """Test get_attachments function."""
 
-    @patch("src.agentix.file_utils.get_file")
+    @patch("agentix.file_utils.get_file")
     def test_get_attachments_single_file(self, mock_get_file):
         """Test getting single attachment."""
         mock_get_file.return_value = "file content"
@@ -68,7 +68,7 @@ class TestGetAttachments(unittest.TestCase):
         self.assertEqual(result[0], "file content")
         mock_get_file.assert_called_once_with("file1.txt")
 
-    @patch("src.agentix.file_utils.get_file")
+    @patch("agentix.file_utils.get_file")
     def test_get_attachments_multiple_files(self, mock_get_file):
         """Test getting multiple attachments."""
         mock_get_file.side_effect = ["content1", "content2", "content3"]
@@ -90,7 +90,7 @@ class TestGetAttachments(unittest.TestCase):
 
         self.assertEqual(result, [])
 
-    @patch("src.agentix.file_utils.get_file")
+    @patch("agentix.file_utils.get_file")
     def test_get_attachments_error_handling(self, mock_get_file):
         """Test get_attachments handles errors gracefully."""
         mock_get_file.side_effect = [

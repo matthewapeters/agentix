@@ -11,8 +11,8 @@ from agentix.sessions import assemble_payload
 class TestAssemblePayload(unittest.TestCase):
     """Test assemble_payload function."""
 
-    @patch("src.agentix.sessions.get_user_prompt", return_value="Test prompt")
-    @patch("src.agentix.api_client.query_api", return_value="Test response")
+    @patch("agentix.sessions.get_user_prompt", return_value="Test prompt")
+    @patch("agentix.api_client.query_api", return_value="Test response")
     def test_assemble_payload_basic(self, mock_query, mock_get_user):
         args = MagicMock()
         args.model = "phi4-mini:3.8b"
@@ -26,12 +26,11 @@ class TestAssemblePayload(unittest.TestCase):
         # Expect 2 messages: system and user
         self.assertEqual(len(payload["messages"]), 2)
 
-    @patch("src.agentix.sessions.get_user_prompt", return_value="Test prompt")
+    @patch("agentix.sessions.get_user_prompt", return_value="Test prompt")
     @patch(
-        "src.agentix.sessions.get_attachments",
-        return_value=["attachment1", "attachment2"],
+        "agentix.sessions.get_attachments", return_value=["attachment1", "attachment2"]
     )
-    @patch("src.agentix.api_client.query_api", return_value="Test response")
+    @patch("agentix.api_client.query_api", return_value="Test response")
     def test_assemble_payload_with_attachments(
         self, mock_query, mock_get_attachments, mock_get_user
     ):
@@ -143,8 +142,8 @@ class TestQueryApi(unittest.TestCase):
 class TestSummarizeUserPrompt(unittest.TestCase):
     """Test summarize_user_prompt function."""
 
-    @patch("src.agentix.api_client.query_api", return_value="Test_Session")
-    @patch("src.agentix.api_client.get_user_prompt", return_value="Test prompt")
+    @patch("agentix.api_client.query_api", return_value="Test_Session")
+    @patch("agentix.api_client.get_user_prompt", return_value="Test prompt")
     def test_summarize_user_prompt_payload_structure(self, mock_get_user, mock_query):
         args = MagicMock()
         args.model = "phi4-mini:3.8b"

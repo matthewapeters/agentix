@@ -2,6 +2,8 @@
 Docstring for tests.test_agentix_config
 """
 
+import os
+
 from agentix.agentix_config import AgentixConfig
 
 

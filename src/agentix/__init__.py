@@ -1,5 +1,8 @@
 # Agentix CLI package
 
+from . import agentix_config, main
+from .agent import agentix
+from .agentix_config import AgentixConfig
 from .api_client import query_api, summarize_user_prompt
 from .constants import (
     DEFAULT_SESSION_ID,
@@ -11,7 +14,7 @@ from .constants import (
     SYSTEM_PROMPTS_DIR,
 )
 from .file_utils import get_attachments, get_file, load_file
-from .main import main
+from .main import main as __main__
 from .models import get_model, get_models
 from .prompts import get_prompts, get_system_prompt, get_user_prompt
 from .sessions import (
@@ -23,27 +26,31 @@ from .sessions import (
 from .transforms import transform_ollama_tags_to_openai_engines
 
 __all__ = [
-    "main",
-    "get_models",
-    "get_model",
-    "get_system_prompt",
-    "get_user_prompt",
-    "get_prompts",
-    "get_session_history",
-    "trim_context",
-    "manage_sessions",
-    "assemble_payload",
-    "query_api",
-    "summarize_user_prompt",
-    "load_file",
-    "get_file",
-    "get_attachments",
+    "AgentixConfig",
+    "DEFAULT_SESSION_ID",
+    "DEFAULT_TEMPERATURE",
     "MAX_TOKENS",
-    "SYSTEM_PROMPTS_DIR",
+    "OLLAMA_API_BASE",
     "SESSIONS_DIR",
     "SESSIONS_METADATA_FILE",
-    "OLLAMA_API_BASE",
-    "DEFAULT_TEMPERATURE",
-    "DEFAULT_SESSION_ID",
+    "SYSTEM_PROMPTS_DIR",
+    "__main__",
+    "agentix",
+    "agentix_config",
+    "assemble_payload",
+    "get_attachments",
+    "get_file",
+    "get_model",
+    "get_models",
+    "get_prompts",
+    "get_session_history",
+    "get_system_prompt",
+    "get_user_prompt",
+    "load_file",
+    "main",
+    "manage_sessions",
+    "query_api",
+    "summarize_user_prompt",
     "transform_ollama_tags_to_openai_engines",
+    "trim_context",
 ]

@@ -11,7 +11,7 @@ class TestGetSystemPrompt(unittest.TestCase):
     """Test get_system_prompt function."""
 
     @patch("glob.glob")
-    @patch("src.agentix.prompts.get_file")
+    @patch("agentix.prompts.get_file")
     def test_get_system_prompt_single(self, mock_get_file, mock_glob):
         """Test loading a single system prompt."""
         mock_glob.return_value = [f"{AGENTIX_HOME}/system_prompts/python_coder.md"]
@@ -25,10 +25,10 @@ class TestGetSystemPrompt(unittest.TestCase):
 
         self.assertIn("[SYSTEM]", result)
         self.assertIn("[END SYSTEM]", result)
-        self.assertIn("adhere to the following guidelines", result)
+        self.assertIn("Python coding guidelines", result)
 
     @patch("glob.glob")
-    @patch("src.agentix.prompts.get_file")
+    @patch("agentix.prompts.get_file")
     def test_get_system_prompt_multiple(self, mock_get_file, mock_glob):
         """Test loading multiple system prompts."""
         mock_glob.return_value = [
