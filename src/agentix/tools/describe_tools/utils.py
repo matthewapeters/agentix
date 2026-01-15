@@ -1,5 +1,6 @@
-from typing import Optional
 import ast as pyast
+from typing import Optional
+
 import libcst as cst
 
 

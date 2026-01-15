@@ -1,6 +1,12 @@
 """agentix.tools package initializer"""
 
-from .describe_tools import describe_tools_impl
 from . import ast_tools, cst_tools
+from .describe_tools import ToolExtractor, describe_tools_impl, to_openai_tools
 
-__all__ = ["ast_tools", "cst_tools", "describe_tools_impl"]
+__all__ = [
+    "ast_tools",
+    "cst_tools",
+    "describe_tools_impl",
+    "ToolExtractor",
+    "to_openai_tools",
+]

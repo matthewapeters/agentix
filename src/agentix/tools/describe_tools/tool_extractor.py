@@ -4,8 +4,9 @@ from dataclasses import asdict
 from typing import Dict, List, Optional
 
 import libcst as cst
-from .utils import _extract_docstring_from_function, _docstring_summary
+
 from .describe_tools_impl import ToolSpec
+from .utils import _docstring_summary, _extract_docstring_from_function
 
 
 class ToolExtractor:
