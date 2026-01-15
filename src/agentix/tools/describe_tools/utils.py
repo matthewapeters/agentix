@@ -26,6 +26,7 @@ def _extract_docstring_from_function(fn: cst.FunctionDef) -> Optional[str]:
             # Fallback: manually process multi-line strings
             lines = raw_value.strip("'\"").splitlines()
             processed_lines = [line.strip() for line in lines if line.strip()]
+            print(f"Processed lines: {processed_lines}")  # Debug log
             return "\n".join(processed_lines)
     return None
 

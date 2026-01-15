@@ -93,3 +93,14 @@ class _ToolCollector(cst.CSTVisitor):
         self._func_depth -= 1
         if self._func_depth == 0:
             self._in_func = False
+
+
+def extract_tools_from_code(source: str) -> List[Dict]:
+    """
+    Parse Python source with LibCST and extract a list of tool specs (dicts) for
+    top-level functions and class methods (non-nested).
+    """
+    module = cst.parse_module(source)
+    collector = _ToolCollector(module)
+    module.visit(collector)
+    return [asdict(t) for t in collector.tools]
