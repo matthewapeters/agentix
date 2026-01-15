@@ -25,7 +25,7 @@ def sample_function(param1: int, param2: str = \"default\") -> bool:
     \"\"\"
     return True
 """
-        tools = self.extractor.extract_tools_from_code(source_code)
+        tools = self.extractor.from_code(source_code)
         self.assertEqual(len(tools), 1)
         tool = tools[0]
         self.assertEqual(tool.name, "sample_function")
@@ -52,7 +52,7 @@ def another_function(x: float) -> str:
     return str(x)
 """
             )
-        tools = self.extractor.extract_tools_from_file("temp_test_file.py")
+        tools = self.extractor.from_file("temp_test_file.py")
         self.assertEqual(len(tools), 1)
         tool = tools[0]
         self.assertEqual(tool.name, "another_function")

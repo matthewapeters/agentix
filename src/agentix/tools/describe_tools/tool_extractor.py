@@ -18,7 +18,7 @@ class ToolExtractor:
         self.debug = debug
         self.tools = []
 
-    def extract_tools_from_code(self, source: str) -> List[Dict]:
+    def from_code(self, source: str) -> List[Dict]:
         """
         Parse Python source with LibCST and extract a list of tool specs (dicts) for
         top-level functions and class methods (non-nested).
@@ -29,7 +29,7 @@ class ToolExtractor:
         self.tools = collector.tools
         return self.tools
 
-    def extract_tools_from_file(self, path: str) -> List[Dict]:
+    def from_file(self, path: str) -> List[Dict]:
         """
         Docstring for extract_tools_from_file
 
@@ -41,4 +41,4 @@ class ToolExtractor:
         """
         with open(path, "r", encoding="utf8") as f:
             source = f.read()
-        return self.extract_tools_from_code(source)
+        return self.from_code(source)

@@ -22,7 +22,7 @@ class AgentixConfig:
     list_models: bool = False
     list_sessions: bool = False
     list_prompts: bool = False
-    session: str = "default_session"
+    session: str = DEFAULT_SESSION_ID
     system: list[str] | None = None
     model: str | None = None
     temperature: float = 0.7
@@ -32,6 +32,7 @@ class AgentixConfig:
     serve: bool = False
     port: int = 8000
     with_frontend: bool = False
+    tools: list[str] | None = None
 
     @property
     def action(self) -> str:
@@ -150,6 +151,14 @@ class AgentixConfig:
             default=8000,
             help="Port to serve on (default: 8000)",
         )
+        args.add_argument(
+            "--tools",
+            type=str,
+            action="append",
+            default=["cst"],
+            dest="tools",
+            help="Specify tools to use",
+        )
         args: Namespace = args.parse_args()
 
         return AgentixConfig(
@@ -166,6 +175,8 @@ class AgentixConfig:
             serve=args.serve,
             port=args.port,
             with_frontend=args.with_frontend,
+            tools=args.tools,
+            debug=args.debug,
         )
 
     # Helper functions for config discovery and merging

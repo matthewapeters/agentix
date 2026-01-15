@@ -18,7 +18,7 @@ from .main import main as __main__
 from .models import get_model, get_models
 from .prompts import get_prompts, get_system_prompt, get_user_prompt
 from .sessions import (
-    assemble_payload,
+    assemble_prompts,
     get_session_history,
     manage_sessions,
     trim_context,
@@ -37,7 +37,7 @@ __all__ = [
     "__main__",
     "agentix",
     "agentix_config",
-    "assemble_payload",
+    "assemble_prompts",
     "get_attachments",
     "get_file",
     "get_model",

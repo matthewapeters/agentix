@@ -5,6 +5,7 @@ Docstring for tests.test_agentix_config
 import os
 
 from agentix.agentix_config import AgentixConfig
+from agentix.constants import DEFAULT_SESSION_ID
 
 
 def test_agentixconfig_defaults():
@@ -13,7 +14,7 @@ def test_agentixconfig_defaults():
     assert config.list_models is False
     assert config.list_sessions is False
     assert config.list_prompts is False
-    assert config.session == "default_session"
+    assert config.session == DEFAULT_SESSION_ID
     assert config.temperature == 0.7
     assert config.port == 8000
     assert config.with_frontend is False

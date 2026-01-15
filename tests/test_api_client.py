@@ -5,7 +5,7 @@ from io import StringIO
 from unittest.mock import MagicMock, patch
 
 from agentix import api_client
-from agentix.sessions import assemble_payload
+from agentix.sessions import assemble_prompts
 
 
 class TestAssemblePayload(unittest.TestCase):
@@ -18,8 +18,9 @@ class TestAssemblePayload(unittest.TestCase):
         args.model = "phi4-mini:3.8b"
         args.temperature = 0.7
         args.session = "test_session"
+        args.tools = []
 
-        payload = assemble_payload(args, [], 4096)
+        payload = assemble_prompts(args, [], 4096)
 
         self.assertEqual(payload["model"], "phi4-mini:3.8b")
         self.assertEqual(payload["temperature"], 0.7)
@@ -38,8 +39,9 @@ class TestAssemblePayload(unittest.TestCase):
         args.model = "phi4-mini:3.8b"
         args.temperature = 0.7
         args.session = "test_session"
+        args.tools = []
 
-        payload = assemble_payload(args, [], 4096)
+        payload = assemble_prompts(args, [], 4096)
 
         self.assertEqual(payload["model"], "phi4-mini:3.8b")
         self.assertEqual(payload["temperature"], 0.7)

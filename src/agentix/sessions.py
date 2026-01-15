@@ -6,10 +6,11 @@ import os
 import sys
 from datetime import UTC, datetime
 
+from .agentix_config import AgentixConfig
 from .api_client import summarize_user_prompt
 from .constants import SESSIONS_DIR, SESSIONS_METADATA_FILE
 from .file_utils import get_attachments
-from .prompts import get_system_prompt, get_user_prompt
+from .prompts import get_system_prompt, get_tools_prompt, get_user_prompt
 
 
 def get_session_history(session_id: str) -> list:
@@ -26,22 +27,24 @@ def get_session_history(session_id: str) -> list:
         return []
 
 
-def assemble_payload(args, history, max_tokens: int) -> dict:
+def assemble_prompts(args: AgentixConfig, history: list[dict], max_tokens: int) -> dict:
     """Construct API request payload with messages and configuration."""
 
     # add system prompts if provided
     if args.system:
         history.append({"role": "system", "content": get_system_prompt(args)})
-
+    if args.tools:
+        history.append({"role": "tool_calls", "content": get_tools_prompt(args)})
     if args.user or args.file_path:
         # add user prompts if provided
-        history.append(
-            {
-                "role": "user",
-                "content": get_user_prompt(args),
-                "attachments": get_attachments(args),
-            }
-        )
+        usr = {
+            "role": "user",
+        }
+        if args.user:
+            usr["content"] = get_user_prompt(args)
+        if args.file_path:
+            usr["attachments"] = get_attachments(args)
+        history.append(usr)
 
     # Trim context based on max_tokens
     contextual_messages = trim_context(args, history, max_tokens)
@@ -53,7 +56,9 @@ def assemble_payload(args, history, max_tokens: int) -> dict:
     }
 
 
-def trim_context(args, messages: list, max_tokens: int) -> list:
+def trim_context(
+    args: AgentixConfig, messages: list[dict], max_tokens: int
+) -> list[dict]:
     """Handle message history with token-based trimming."""
 
     # save the untrimmed history first
@@ -90,7 +95,7 @@ def trim_context(args, messages: list, max_tokens: int) -> list:
     return trimmed_history
 
 
-def manage_sessions(args):
+def manage_sessions(args: AgentixConfig) -> list[dict]:
     """Create, retrieve, and manage session state."""
     # if no specific session is requested, (session == agentix_session) then summarize
     # the prompt and add it to the sessions metadata file
@@ -148,7 +153,7 @@ def manage_sessions(args):
     return history
 
 
-def update_session(args, history: list, response: str):
+def update_session(args: AgentixConfig, history: list, response: str):
     """Update session history with the latest interaction."""
     # history = get_session_history(args.session) or []
 

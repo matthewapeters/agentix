@@ -65,10 +65,10 @@ class TestMainFlow(unittest.TestCase):
 
     @patch("agentix.agent.update_session")
     @patch("agentix.agent.query_api")
-    @patch("agentix.agent.assemble_payload")
+    @patch("agentix.agent.assemble_prompts")
     @patch("agentix.agent.manage_sessions")
     @patch("agentix.agent.get_model", return_value=4096)
-    def test_main_with_frontend(
+    def test_main_with_frontend_false(
         self,
         mock_get_model,
         mock_manage,
@@ -76,21 +76,26 @@ class TestMainFlow(unittest.TestCase):
         mock_query,
         mock_update_session,
     ):
-        """Test main flow with frontend flag."""
-        mock_query.return_value = "Python is a programming language"
+        """Test main flow with frontend flag to False - output goes to stdout."""
+        # Mock query_api to return a JSON string as expected for structured_response
+        mock_query.return_value = json.dumps(
+            {"response": "Python is a programming language"}
+        )
         mock_assemble.return_value = {"model": "llama2", "messages": []}
         mock_manage.return_value = [{"role": "user", "content": "Test"}]
         config = AgentixConfig(
             user=["What is Python?"],
             model="llama2",
-            with_frontend=True,
+            with_frontend=False,
             file_path=[],
             debug=False,
+            system=["structured_response"],
         )
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            main(config)
+            result = main(config)
         output = mock_stdout.getvalue()
         self.assertIn("Python is a programming language", output)
+        self.assertIsNone(result)
         mock_query.assert_called_once()
 
     @patch(
@@ -99,11 +104,12 @@ class TestMainFlow(unittest.TestCase):
     )
     @patch("agentix.agent.get_model", return_value=4096)
     def test_main_without_frontend(self, _, __):
-        """Test main flow without frontend flag."""
+        """Test main flow without frontend flag (default: output to stdout)."""
         config = AgentixConfig(user=["Test"], model="llama2", file_path=[], debug=False)
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            main(config)
-        # Output should be minimal or empty
+            result = main(config)
+        # Output should be minimal or empty, and result should be None
+        self.assertIsNone(result)
 
     @patch("agentix.agent.get_model", return_value=4096)
     def test_main_default_session(self, _):
@@ -138,7 +144,7 @@ class TestMainFlow(unittest.TestCase):
         mock_summarize.assert_not_called()
 
     @patch(
-        "agentix.agent.assemble_payload",
+        "agentix.agent.assemble_prompts",
         return_value={"model": "phi4-mini:3.8b", "messages": []},
     )
     @patch(

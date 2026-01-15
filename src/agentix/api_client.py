@@ -5,11 +5,12 @@ import sys
 
 import requests
 
+from .agentix_config import AgentixConfig
 from .constants import OLLAMA_API_BASE, OLLAMA_CHAT_ENDPOINT
 from .prompts import get_user_prompt
 
 
-def query_api(args, payload: dict) -> str:
+def query_api(args: AgentixConfig, payload: dict) -> str:
     """Send request to Ollama API and parse response."""
     headers = {
         "Content-Type": "application/json",
@@ -49,7 +50,7 @@ def query_api(args, payload: dict) -> str:
         return ""
 
 
-def summarize_user_prompt(args) -> str:
+def summarize_user_prompt(args: AgentixConfig) -> str:
     """Generate a session summary name based on the user prompt."""
     # Use query_api to generate a session summary name based on the user prompt
     summary_payload = {
@@ -59,7 +60,8 @@ def summarize_user_prompt(args) -> str:
                 "role": "system",
                 "content": (
                     "You are an assistant that generates concise session names based on prompts.\n"
-                    "Generate a short, descriptive session name (3-5 words) that captures the essence of the user's prompt.\n"
+                    "Generate a short, descriptive session name (3-5 words) that captures the "
+                    "essence of the user's prompt.\n"
                     "Avoid using special characters or spaces in the session name.\n"
                     "Respond with only the session name without any additional text."
                 ),
