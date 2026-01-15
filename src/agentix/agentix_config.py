@@ -15,6 +15,7 @@ from .constants import DEFAULT_SESSION_ID, DEFAULT_TEMPERATURE
 class AgentixConfig:
     """Configuration settings for Agentix"""
 
+    debug: bool = False
     list_models: bool = False
     list_sessions: bool = False
     list_prompts: bool = False
@@ -23,9 +24,9 @@ class AgentixConfig:
     model: str | None = None
     temperature: float = 0.7
     user: list[str] | None = None
-    file: str | None = None
+    file_path: list[str] | None = None
     replace_file: bool = False
-    server: bool = False
+    serve: bool = False
     port: int = 8000
     with_frontend: bool = False
 
@@ -138,9 +139,9 @@ class AgentixConfig:
             model=args.model,
             temperature=args.temperature,
             user=args.user,
-            file=args.file,
+            file_path=args.file,
             replace_file=args.replace_file,
-            server=args.server,
+            serve=args.serve,
             port=args.port,
             with_frontend=args.with_frontend,
         )

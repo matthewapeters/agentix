@@ -39,7 +39,6 @@ def main(args: AgentixConfig):
 
     # If --serve is passed, launch the FastAPI server
     if args.serve:
-
         start_server(args.port)
         return
 
@@ -61,7 +60,7 @@ def main(args: AgentixConfig):
         json.dumps(agent_content_raw, indent=2).encode("utf-8").decode("unicode_escape")
     )
     update_session(args, payload["messages"], agent_content_raw)
-    if "structured_response" in args.system:
+    if args.system and "structured_response" in args.system:
         try:
             agent_content = json.loads(agent_content_raw)
         except json.JSONDecodeError:

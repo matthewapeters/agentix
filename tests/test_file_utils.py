@@ -32,9 +32,9 @@ class TestGetFile(unittest.TestCase):
     def test_get_file_success(self, mock_file):
         """Test get_file returns formatted output."""
         result = file_utils.get_file("test.txt")
-        self.assertIn("---- FILE: test.txt ----", result)
+        self.assertIn("[FILE: test.txt]", result)
         self.assertIn("test content", result)
-        self.assertIn("---- END OF FILE ----", result)
+        self.assertIn("[END OF FILE]", result)
 
     @patch("builtins.open", side_effect=FileNotFoundError)
     def test_get_file_error_handling(self, mock_file):
