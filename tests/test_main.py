@@ -8,6 +8,7 @@ from unittest.mock import patch
 from agentix.agentix_config import AgentixConfig
 from agentix.main import main
 
+# pylint: disable=too-many-arguments, unused-argument, unused-variable
 
 class TestMainArguments(unittest.TestCase):
     """Test main CLI argument parsing."""
