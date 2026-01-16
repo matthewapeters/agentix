@@ -59,7 +59,7 @@ def _extract_docstring_from_function(fn: cst.FunctionDef) -> Optional[str]:
         and isinstance(first.body[0].value, cst.SimpleString)
     ):
         raw = first.body[0].value.value  # includes quotes
-        print(f"Raw docstring: {raw}")  # Debug log
+        # print(f"Raw docstring: {raw}")  # Debug log
         try:
             # Use ast.literal_eval to safely unescape multi-line string literals
             # Ensure all lines are preserved and unescaped

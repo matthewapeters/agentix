@@ -5,35 +5,40 @@ from __future__ import annotations
 from dataclasses import asdict
 from typing import Dict, List
 
-import libcst as cst
-
 from .tool_extractor import ToolExtractor
 from .tool_spec import ToolSpec
 
 
-def extract_tools_from_code(source: str) -> List[Dict]:
+def extract_tools_from_code(
+    source: str, debug: bool = False, return_dicts: bool = True
+):
     """
-    Parse Python source with LibCST and extract a list of tool specs (dicts) for
+    Parse Python source with LibCST and extract a list of tool specs (dicts or ToolSpec objects) for
     top-level functions and class methods (non-nested).
     """
-    module = cst.parse_module(source)
     collector = ToolExtractor()
-    module.visit(collector)
-    return [asdict(t) for t in collector.tools]
+    collector.debug = debug
+    collector.from_code(source)
+    if return_dicts:
+        return [asdict(t) for t in collector.tools]
+    else:
+        return collector.tools
 
 
-def extract_tools_from_file(path: str) -> List[Dict]:
+def extract_tools_from_file(path: str, debug: bool = False, return_dicts: bool = True):
     """
     Docstring for extract_tools_from_file
 
     :param path: Description
     :type path: str
-    :return: Description
-    :rtype: List[Dict]
+    :param return_dicts: If True, return list of dicts; if False, return list of ToolSpec objects
+    :type return_dicts: bool
+    :return: List of tool specs (dicts or ToolSpec objects)
+    :rtype: List[Dict] or List[ToolSpec]
     """
     with open(path, "r", encoding="utf8") as f:
         source = f.read()
-    return extract_tools_from_code(source)
+    return extract_tools_from_code(source, debug, return_dicts=return_dicts)
 
 
 # Optional: format for OpenAI "tools" (function calling) style

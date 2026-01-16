@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from typing import Dict, List, Optional
 
 import libcst as cst
@@ -24,8 +25,8 @@ class _ToolCollector(cst.CSTVisitor):
 
     def visit_FunctionDef(self, node: cst.FunctionDef) -> Optional[bool]:
         if self.debug:
-            print(f"Visiting function: {node.name.value}")
-        # Only collect top-level functions
+            print(f"Visiting function: {node.name.value}", file=sys.stderr)
+        # Only collect top-level functions and class methods (not nested functions)
         if self._func_depth == 0:
             is_method = len(self._class_stack) > 0
             class_name = self._class_stack[-1] if is_method else None
@@ -52,8 +53,19 @@ class _ToolCollector(cst.CSTVisitor):
                 class_name=class_name,
             )
             self.tools.append(spec)
-
+        self._func_depth += 1
         return True
+
+    def leave_FunctionDef(self, node: cst.FunctionDef) -> None:
+        self._func_depth -= 1
+
+    def visit_ClassDef(self, node: cst.ClassDef) -> Optional[bool]:
+        self._class_stack.append(node.name.value)
+        return True
+
+    def leave_ClassDef(self, node: cst.ClassDef) -> None:
+        if self._class_stack:
+            self._class_stack.pop()
 
     def _extract_params_schema(self, node: cst.FunctionDef) -> Dict:
         """Extract parameter schema from function definition."""

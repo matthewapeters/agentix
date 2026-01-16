@@ -42,6 +42,8 @@ def get_tools_prompt(args: AgentixConfig) -> str:
     f = ""
     tools = []
     for t in args.tools or []:
+        if args.debug:
+            print(f"Processing tool: {t}", file=sys.stderr)
         match t:
             case "cst":
                 f = cst_tools.__file__
@@ -54,12 +56,13 @@ def get_tools_prompt(args: AgentixConfig) -> str:
         if f:
             tool_data = {}
             try:
-                tool_data = extract_tools_from_file(f)
+                tool_data = extract_tools_from_file(
+                    f, debug=args.debug, return_dicts=False
+                )
                 tools.append(to_openai_tools(tool_data))
             except Exception as e:
-                if args.debug:
-                    print(f"Error extracting tools from {f}: {e}", file=sys.stderr)
-                    print(tool_data, file=sys.stderr)
+                print("tool_data:", tool_data, file=sys.stderr)
+                print(f"Error extracting tools from {f}: {e}", file=sys.stderr)
 
     return f"[TOOLS]\n{json.dumps(tools, indent=2)}\n[END TOOLS]\n\n"
 

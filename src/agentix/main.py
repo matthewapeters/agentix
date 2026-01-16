@@ -11,7 +11,7 @@ from .prompts import get_prompts
 from .server import start_server
 
 
-def main(args: AgentixConfig):
+def main(args: AgentixConfig) -> None:
     """agentix main functionality"""
     match args.action:
         case "list_models":
