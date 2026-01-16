@@ -37,9 +37,10 @@ def agentix(args: AgentixConfig) -> Optional[dict]:
     update_session(args, payload["messages"], agent_content_raw)
     if args.system and "structured_response" in args.system:
         try:
-            agent_content = json.loads(agent_content_raw)
+            agent_content_clean = agent_content_raw.replace("\n", "").replace("\t", "")
+            agent_content = json.loads(agent_content_clean)
         except json.JSONDecodeError:
-            agent_content = {"response": agent_content_raw}
+            agent_content = {"response": agent_content_clean}
 
     # Section to determine next steps:
     # If --replace-file is passed, replace the contents of the file with the LLM output
