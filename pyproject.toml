@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [project.scripts]
-agentix =  "agentix.__main__"
+agentix =  "agentix.main:main"
 
 # packages inside src/*
 [tool.setuptools.packages.find]
