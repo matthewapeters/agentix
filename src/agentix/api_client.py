@@ -8,10 +8,19 @@ import requests
 from .agentix_config import AgentixConfig
 from .constants import OLLAMA_API_BASE, OLLAMA_CHAT_ENDPOINT
 from .prompts import get_user_prompt
+from .sessions import update_session
 
 
-def query_api(args: AgentixConfig, payload: dict) -> str:
-    """Send request to Ollama API and parse response."""
+def query_api(args: AgentixConfig, payload: dict) -> dict:
+    """
+    Send request to Ollama API and parse response.
+
+    params:
+        args (AgentixConfig): Configuration for the agent
+        payload (dict): Payload to send to Ollama API - this is a structured dict of the
+            context and other information
+
+    """
     headers = {
         "Content-Type": "application/json",
     }
@@ -44,10 +53,13 @@ def query_api(args: AgentixConfig, payload: dict) -> str:
             print(answer, file=sys.stderr)
             print("\nReasoning:", file=sys.stderr)
             print(reasoning, file=sys.stderr)
-        return answer
+
+        update_session(args, payload["messages"], answer)
+        agent_content_clean = answer.replace("\n", "").replace("\t", "")
+        return json.loads(agent_content_clean)
     else:
         print("Error:", response.status_code, response.text)
-        return ""
+        return {}
 
 
 def summarize_user_prompt(args: AgentixConfig) -> str:

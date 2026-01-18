@@ -23,3 +23,6 @@ OLLAMA_CHAT_ENDPOINT = "/v1/chat/completions"
 DEFAULT_TEMPERATURE = 0.2
 DEFAULT_SESSION_ID = "agentix_session"
 CONTINUE_SESSION_ID = "__continue"
+
+# All user prompts are classified before processing
+PROMPT_CLASSIFICATION = "prompt_classification"

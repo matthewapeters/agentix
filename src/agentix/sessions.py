@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 
 from .agentix_config import AgentixConfig
 from .api_client import summarize_user_prompt
-from .constants import SESSIONS_DIR, SESSIONS_METADATA_FILE
+from .constants import PROMPT_CLASSIFICATION, SESSIONS_DIR, SESSIONS_METADATA_FILE
 from .file_utils import get_attachments
 from .prompts import get_system_prompt, get_tools_prompt, get_user_prompt
 
@@ -25,6 +25,23 @@ def get_session_history(session_id: str) -> list:
             return history
     except (FileNotFoundError, IndexError):
         return []
+
+
+def assemble_classification_prompt(
+    args: AgentixConfig, history: list[dict], max_tokens: int
+) -> dict:
+    """Construct API request payload with messages and configuration for classification prompts."""
+
+    # Use the classification prompt to ask the LLM to classify the user input
+    # and determine next steps.  We do this for all user prompts.
+    # We do not include system prompts or tool prompts in this classification step.
+    classification_config = AgentixConfig()
+    classification_config.model = args.model
+    classification_config.system = [PROMPT_CLASSIFICATION]
+    classification_config.user = args.user
+    classification_config.debug = args.debug
+
+    return assemble_prompts(classification_config, history, max_tokens)
 
 
 def assemble_prompts(args: AgentixConfig, history: list[dict], max_tokens: int) -> dict:
