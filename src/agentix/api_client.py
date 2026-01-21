@@ -2,21 +2,19 @@
 
 import json
 import sys
+from dataclasses import dataclass
 
 import requests
-from dataclasses import dataclass
 
 from .agentix_config import AgentixConfig
 from .constants import OLLAMA_API_BASE, OLLAMA_CHAT_ENDPOINT
 from .prompts import get_user_prompt
+from .query_payload import QueryPayload
+
 # from .sessions import update_session
 
 
-class QueryPayload:
-
-
-
-def query_api(args: AgentixConfig, payload: dict) -> dict:
+def query_api(args: AgentixConfig, payload: QueryPayload) -> dict:
     """
     Send request to Ollama API and parse response.
 

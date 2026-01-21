@@ -5,7 +5,6 @@ Docstring for agentix.next_steps.invoke_planner
 from agentix import AgentixConfig
 from agentix.api_client import query_api
 from agentix.next_steps.take_steps import NextStep
-from agentix.tools.describe_tools import extract_cst_tools
 
 INVOKE_PLANNER_PROMPT = "invoke_planner"
 
@@ -31,3 +30,5 @@ def invoke_planner(
     planner_args.user = args.user
     planner_args.file_path = args.file_path
     planner_args.model = args.model
+
+    result = query_api(planner_args, history)

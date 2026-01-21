@@ -1,8 +1,11 @@
-# Agentix CLI package
+"""
+Docstring for agentix
+"""
 
-from . import agentix_config, main
+from . import agentix_config, api_client, main
 from .agent import agentix
 from .agentix_config import AgentixConfig
+
 # from .api_client import query_api, summarize_user_prompt
 from .constants import (
     DEFAULT_SESSION_ID,
@@ -15,6 +18,7 @@ from .constants import (
 )
 from .file_utils import get_attachments, get_file, load_file
 from .main import main as __main__
+from .message import Message
 from .models import get_model, get_models
 from .prompts import get_prompts, get_system_prompt, get_user_prompt
 from .sessions import (
@@ -30,12 +34,14 @@ __all__ = [
     "DEFAULT_SESSION_ID",
     "DEFAULT_TEMPERATURE",
     "MAX_TOKENS",
+    "Message",
     "OLLAMA_API_BASE",
     "SESSIONS_DIR",
     "SESSIONS_METADATA_FILE",
     "SYSTEM_PROMPTS_DIR",
     "__main__",
     "agentix",
+    "api_c;oemt",
     "agentix_config",
     "assemble_prompts",
     "get_attachments",
@@ -49,8 +55,8 @@ __all__ = [
     "load_file",
     "main",
     "manage_sessions",
- #   "query_api",
- #   'summarize_user_prompt",
+    #   "query_api",
+    #   'summarize_user_prompt",
     "transform_ollama_tags_to_openai_engines",
     "trim_context",
 ]

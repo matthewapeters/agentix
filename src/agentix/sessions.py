@@ -5,21 +5,14 @@ import json
 import os
 import sys
 from datetime import UTC, datetime
-from typing import Optional
-from dataclasses import dataclass
+
+from agentix import Message
 
 from .agentix_config import AgentixConfig
-from .api_client import summarize_user_prompt, QueryPayload
+from .api_client import QueryPayload, summarize_user_prompt
 from .constants import PROMPT_CLASSIFICATION, SESSIONS_DIR, SESSIONS_METADATA_FILE
 from .file_utils import get_attachments
 from .prompts import get_system_prompt, get_tools_prompt, get_user_prompt
-
-@dataclass
-class Message:
-    def __init__(self, role: str, content: str, attachments: list = None):
-        self.role = role
-        self.content = content
-        self.attachments:Optional[list] = attachments 
 
 
 def get_session_history(session_id: str) -> list:
@@ -53,7 +46,9 @@ def assemble_classification_prompt(
     return assemble_prompts(classification_config, history, max_tokens)
 
 
-def assemble_prompts(args: AgentixConfig, history: list[dict], max_tokens: int) -> QueryPayload:
+def assemble_prompts(
+    args: AgentixConfig, history: list[dict], max_tokens: int
+) -> QueryPayload:
     """Construct API request payload with messages and configuration."""
 
     # add system prompts if provided
@@ -63,7 +58,7 @@ def assemble_prompts(args: AgentixConfig, history: list[dict], max_tokens: int) 
         history.append(Message(role="tool_calls", content=get_tools_prompt(args)))
     if args.user or args.file_path:
         # add user prompts if provided
-        role = "user",
+        role = ("user",)
         content = None
         attachment = None
         if args.user:
