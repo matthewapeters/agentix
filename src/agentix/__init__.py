@@ -3,7 +3,7 @@
 from . import agentix_config, main
 from .agent import agentix
 from .agentix_config import AgentixConfig
-from .api_client import query_api, summarize_user_prompt
+# from .api_client import query_api, summarize_user_prompt
 from .constants import (
     DEFAULT_SESSION_ID,
     DEFAULT_TEMPERATURE,
@@ -49,8 +49,8 @@ __all__ = [
     "load_file",
     "main",
     "manage_sessions",
-    "query_api",
-    "summarize_user_prompt",
+ #   "query_api",
+ #   'summarize_user_prompt",
     "transform_ollama_tags_to_openai_engines",
     "trim_context",
 ]

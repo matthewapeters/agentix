@@ -5,12 +5,21 @@ import json
 import os
 import sys
 from datetime import UTC, datetime
+from typing import Optional
+from dataclasses import dataclass
 
 from .agentix_config import AgentixConfig
-from .api_client import summarize_user_prompt
+from .api_client import summarize_user_prompt, QueryPayload
 from .constants import PROMPT_CLASSIFICATION, SESSIONS_DIR, SESSIONS_METADATA_FILE
 from .file_utils import get_attachments
 from .prompts import get_system_prompt, get_tools_prompt, get_user_prompt
+
+@dataclass
+class Message:
+    def __init__(self, role: str, content: str, attachments: list = None):
+        self.role = role
+        self.content = content
+        self.attachments:Optional[list] = attachments 
 
 
 def get_session_history(session_id: str) -> list:
@@ -44,33 +53,33 @@ def assemble_classification_prompt(
     return assemble_prompts(classification_config, history, max_tokens)
 
 
-def assemble_prompts(args: AgentixConfig, history: list[dict], max_tokens: int) -> dict:
+def assemble_prompts(args: AgentixConfig, history: list[dict], max_tokens: int) -> QueryPayload:
     """Construct API request payload with messages and configuration."""
 
     # add system prompts if provided
     if args.system:
-        history.append({"role": "system", "content": get_system_prompt(args)})
+        history.append(Message(role="system", content=get_system_prompt(args)))
     if args.tools:
-        history.append({"role": "tool_calls", "content": get_tools_prompt(args)})
+        history.append(Message(role="tool_calls", content=get_tools_prompt(args)))
     if args.user or args.file_path:
         # add user prompts if provided
-        usr = {
-            "role": "user",
-        }
+        role = "user",
+        content = None
+        attachment = None
         if args.user:
-            usr["content"] = get_user_prompt(args)
+            content = get_user_prompt(args)
         if args.file_path:
-            usr["attachments"] = get_attachments(args)
-        history.append(usr)
+            attachment = get_attachments(args)
+        history.append(Message(role=role, content=content, attachments=attachment))
 
     # Trim context based on max_tokens
     contextual_messages = trim_context(args, history, max_tokens)
 
-    return {
-        "model": args.model,
-        "messages": contextual_messages,
-        "temperature": args.temperature,
-    }
+    return QueryPayload(
+        model=args.model,
+        messages=contextual_messages,
+        temperature=args.temperature,
+    )
 
 
 def trim_context(

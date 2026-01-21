@@ -25,9 +25,16 @@ dependencies = [
 [project.scripts]
 agentix =  "agentix.main:main"
 
+[tool.uv]
+package = true
+
 # packages inside src/*
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
 
 [dependency-groups]
 dev = [
@@ -41,6 +48,4 @@ developclear = [
     "isort>=7.0.0",
 ]
 
-[tool.pytest.ini_options]
-pythonpath = ["src"]
 

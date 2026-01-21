@@ -9,7 +9,7 @@ from .api_client import query_api
 from .models import get_model
 from .next_steps import take_steps
 from .prompt_classification_response import PromptClassificationResponse
-from .sessions import assemble_classification_prompt, manage_sessions
+from .sessions import assemble_classification_prompt, manage_sessions, update_session
 
 
 def classify_user_prompt(initial_prompt, args) -> PromptClassificationResponse:
@@ -26,6 +26,7 @@ def classify_user_prompt(initial_prompt, args) -> PromptClassificationResponse:
             .decode("unicode_escape"),
             file=sys.stderr,
         )
+    update_session(args, [], classification)
     return PromptClassificationResponse(**classification)
 
 

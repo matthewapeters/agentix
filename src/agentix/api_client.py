@@ -4,11 +4,16 @@ import json
 import sys
 
 import requests
+from dataclasses import dataclass
 
 from .agentix_config import AgentixConfig
 from .constants import OLLAMA_API_BASE, OLLAMA_CHAT_ENDPOINT
 from .prompts import get_user_prompt
-from .sessions import update_session
+# from .sessions import update_session
+
+
+class QueryPayload:
+
 
 
 def query_api(args: AgentixConfig, payload: dict) -> dict:
@@ -54,7 +59,7 @@ def query_api(args: AgentixConfig, payload: dict) -> dict:
             print("\nReasoning:", file=sys.stderr)
             print(reasoning, file=sys.stderr)
 
-        update_session(args, payload["messages"], answer)
+        # update_session(args, payload["messages"], answer)
         agent_content_clean = answer.replace("\n", "").replace("\t", "")
         return json.loads(agent_content_clean)
     else:
