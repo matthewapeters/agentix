@@ -16,8 +16,6 @@ from .prompts import get_system_prompt, get_tools_prompt, get_user_prompt
 from .query_payload import QueryPayload
 
 
-
-
 def assemble_classification_prompt(
     args: AgentixConfig, history: list[Message], max_tokens: int
 ) -> dict:
@@ -171,14 +169,25 @@ def update_session(args: AgentixConfig, history: list[Message], response: str):
     # Save each message in the history that hasn't been saved yet
     for message in history:
         if not message.filename:  # Only save messages without a filename
-            timestamp = datetime.now(UTC).strftime("%Y%m%d%H%M%S%f")  # Microsecond precision
+            timestamp = datetime.now(UTC).strftime(
+                "%Y%m%d%H%M%S%f"
+            )  # Microsecond precision
             filename = f"{timestamp}_{message.role}.json"
             filepath = os.path.join(session_dir, filename)
 
             with open(filepath, "w", encoding="utf-8") as f:
-                json.dump({"role": message.role, "content": message.content, "attachments": message.attachments}, f, indent=2)
+                json.dump(
+                    {
+                        "role": message.role,
+                        "content": message.content,
+                        "attachments": message.attachments,
+                    },
+                    f,
+                    indent=2,
+                )
 
             message.filename = filename  # Assign the filename to the message
+
 
 def get_session_history(args: AgentixConfig) -> list[Message]:
     """Retrieve session history JSON from timestamped files."""
@@ -193,8 +202,14 @@ def get_session_history(args: AgentixConfig) -> list[Message]:
     for filepath in message_files:
         with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
-            message = Message(role=data["role"], content=data["content"], attachments=data.get("attachments"))
-            message.filename = os.path.basename(filepath)  # Assign the filename to the message
+            message = Message(
+                role=data["role"],
+                content=data["content"],
+                attachments=data.get("attachments"),
+            )
+            message.filename = os.path.basename(
+                filepath
+            )  # Assign the filename to the message
             history.append(message)
 
     return history
