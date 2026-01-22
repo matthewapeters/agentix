@@ -5,9 +5,11 @@ Docstring for agentix.context.context
 import json
 import os
 from datetime import UTC, datetime
+from glob import glob
+import sys
 
 from agentix.agentix_config import AgentixConfig
-from agentix.constants import SESSIONS_DIR
+from agentix.constants import SESSIONS_DIR, SESSIONS_METADATA_FILE, PROMPT_CLASSIFICATION
 from agentix.file_utils import get_attachments
 from agentix.query_payload import QueryPayload
 
@@ -180,7 +182,7 @@ class Context:
         print(f"Debug: args = {args}", file=sys.stderr)
         return history
 
-    def update_session(args: AgentixConfig, history: list[Message], response: str):
+    def update_session(self, args: AgentixConfig, history: list[Message], response: str):
         """Update session history with the latest interaction."""
         session_dir = f"{SESSIONS_DIR}{args.session}"
         os.makedirs(session_dir, exist_ok=True)
@@ -207,13 +209,13 @@ class Context:
 
                 message.filename = filename  # Assign the filename to the message
 
-    def get_session_history(args: AgentixConfig) -> list[Message]:
+    def get_session_history(self, args: AgentixConfig) -> list[Message]:
         """Retrieve session history JSON from timestamped files."""
         session_dir = f"{SESSIONS_DIR}{args.session}"
         os.makedirs(session_dir, exist_ok=True)
 
         # Load all message files and sort them by timestamp
-        message_files = glob.glob(os.path.join(session_dir, "*.json"))
+        message_files = glob(os.path.join(session_dir, "*.json"))
         message_files.sort()
 
         history = []
