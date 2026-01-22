@@ -61,4 +61,4 @@ def agentix(args: AgentixConfig) -> Optional[dict]:
             print(classification, file=sys.stderr)
 
     # take the steps indicated from the LLM
-    take_steps(args, prompt_classiication.next_step, history)
+    take_steps(args, prompt_classiication.next_step, history, max_tokens)

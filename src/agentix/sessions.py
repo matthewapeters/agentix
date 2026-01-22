@@ -9,10 +9,11 @@ from datetime import UTC, datetime
 from agentix import Message
 
 from .agentix_config import AgentixConfig
-from .api_client import QueryPayload, summarize_user_prompt
+from .api_client import summarize_user_prompt
 from .constants import PROMPT_CLASSIFICATION, SESSIONS_DIR, SESSIONS_METADATA_FILE
 from .file_utils import get_attachments
 from .prompts import get_system_prompt, get_tools_prompt, get_user_prompt
+from .query_payload import QueryPayload
 
 
 

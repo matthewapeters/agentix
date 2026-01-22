@@ -4,13 +4,15 @@ Docstring for agentix.next_steps.invoke_planner
 
 from agentix import AgentixConfig
 from agentix.api_client import query_api
+from agentix.message import Message
 from agentix.next_steps.take_steps import NextStep
+from agentix.sessions import assemble_prompts
 
 INVOKE_PLANNER_PROMPT = "invoke_planner"
 
 
 def invoke_planner(
-    args: AgentixConfig, next_step: NextStep, history: list[dict]
+    args: AgentixConfig, next_step: NextStep, history: list[Message], max_tokens: int
 ) -> str:
     """
     Docstring for invoke_planner
@@ -22,7 +24,8 @@ def invoke_planner(
     params:
     args: AgentixConfig User prompt and settings
     next_step: NextStep The LLM's directions for how to handle the user request
-    history: list[dict] The conversation history between the user and the LLM
+    history: list[Message] The conversation history between the user and the LLM
+    max_tokens: int The max tokens allowed in the context
     """
     planner_args: AgentixConfig = AgentixConfig()
     planner_args.debug = args.debug
@@ -31,4 +34,5 @@ def invoke_planner(
     planner_args.file_path = args.file_path
     planner_args.model = args.model
 
-    result = query_api(planner_args, history)
+    qp = assemble_prompts(planner_args, history, max_tokens)
+    result = query_api(planner_args, qp)
