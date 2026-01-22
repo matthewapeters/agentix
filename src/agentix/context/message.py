@@ -11,6 +11,7 @@ class Message:
     """
     Docstring for Message
     """
+
     def __init__(self, role: str, content: str, attachments: list = None):
         self.role = role
         self.content = content

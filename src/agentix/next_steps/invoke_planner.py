@@ -4,7 +4,7 @@ Docstring for agentix.next_steps.invoke_planner
 
 from agentix import AgentixConfig
 from agentix.api_client import query_api
-from agentix.message import Message
+from agentix.context import Message
 from agentix.next_steps.take_steps import NextStep
 from agentix.sessions import assemble_prompts
 

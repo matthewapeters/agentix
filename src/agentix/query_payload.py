@@ -4,7 +4,7 @@ agentix.query_payload
 
 from dataclasses import dataclass
 
-from .message import Message
+from .context import Message
 
 
 @dataclass

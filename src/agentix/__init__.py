@@ -16,9 +16,9 @@ from .constants import (
     SESSIONS_METADATA_FILE,
     SYSTEM_PROMPTS_DIR,
 )
+from .context import Message
 from .file_utils import get_attachments, get_file, load_file
 from .main import main as __main__
-from .message import Message
 from .models import get_model, get_models
 from .prompts import get_prompts, get_system_prompt, get_user_prompt
 from .sessions import (
@@ -41,7 +41,7 @@ __all__ = [
     "SYSTEM_PROMPTS_DIR",
     "__main__",
     "agentix",
-    "api_c;oemt",
+    "api_client",
     "agentix_config",
     "assemble_prompts",
     "get_attachments",

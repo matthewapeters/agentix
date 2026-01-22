@@ -3,7 +3,7 @@ Docstring for agentix.next_steps.take_steps
 """
 
 from agentix.agentix_config import AgentixConfig
-from agentix.message import Message
+from agentix.context import Message
 from agentix.prompt_classification_response import NextStep
 
 from . import escalate, invoke_planner, respond_directly, single_tool
