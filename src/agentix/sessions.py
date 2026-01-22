@@ -15,22 +15,10 @@ from .file_utils import get_attachments
 from .prompts import get_system_prompt, get_tools_prompt, get_user_prompt
 
 
-def get_session_history(session_id: str) -> list:
-    """Retrieve session history JSON from timestamped files."""
-
-    os.makedirs(f"{SESSIONS_DIR}{session_id}", exist_ok=True)
-    try:
-        # find the most recent timestamped file matching the session id
-        session_file = glob.glob(f"{SESSIONS_DIR}{session_id}/*.json")[-1]
-        with open(session_file, "r", encoding="utf-8") as f:
-            history = json.load(f)
-            return history
-    except (FileNotFoundError, IndexError):
-        return []
 
 
 def assemble_classification_prompt(
-    args: AgentixConfig, history: list[dict], max_tokens: int
+    args: AgentixConfig, history: list[Message], max_tokens: int
 ) -> dict:
     """Construct API request payload with messages and configuration for classification prompts."""
 
@@ -47,7 +35,7 @@ def assemble_classification_prompt(
 
 
 def assemble_prompts(
-    args: AgentixConfig, history: list[dict], max_tokens: int
+    args: AgentixConfig, history: list[Message], max_tokens: int
 ) -> QueryPayload:
     """Construct API request payload with messages and configuration."""
 
@@ -78,8 +66,8 @@ def assemble_prompts(
 
 
 def trim_context(
-    args: AgentixConfig, messages: list[dict], max_tokens: int
-) -> list[dict]:
+    args: AgentixConfig, messages: list[Message], max_tokens: int
+) -> list[Message]:
     """Handle message history with token-based trimming."""
 
     # save the untrimmed history first
@@ -116,7 +104,7 @@ def trim_context(
     return trimmed_history
 
 
-def manage_sessions(args: AgentixConfig) -> list[dict]:
+def manage_sessions(args: AgentixConfig) -> list[Message]:
     """Create, retrieve, and manage session state."""
     # if no specific session is requested, (session == agentix_session) then summarize
     # the prompt and add it to the sessions metadata file
@@ -168,27 +156,44 @@ def manage_sessions(args: AgentixConfig) -> list[dict]:
                 # Continue with the same model if not specified
                 if not args.model:
                     args.model = sessions["sessions"][-1]["model"]
-                history = get_session_history(args.session)
+                history = get_session_history(args)
     print(f"Debug: args.session = {args.session}", file=sys.stderr)
     print(f"Debug: args = {args}", file=sys.stderr)
     return history
 
 
-def update_session(args: AgentixConfig, history: list, response: str):
+def update_session(args: AgentixConfig, history: list[Message], response: str):
     """Update session history with the latest interaction."""
-    # history = get_session_history(args.session) or []
+    session_dir = f"{SESSIONS_DIR}{args.session}"
+    os.makedirs(session_dir, exist_ok=True)
 
-    # Append user message
-    # user_message = next((msg for msg in payload["messages"] if msg["role"] == "user"), None)
-    # if user_message:
-    #    history.append(user_message)
+    # Save each message in the history that hasn't been saved yet
+    for message in history:
+        if not message.filename:  # Only save messages without a filename
+            timestamp = datetime.now(UTC).strftime("%Y%m%d%H%M%S%f")  # Microsecond precision
+            filename = f"{timestamp}_{message.role}.json"
+            filepath = os.path.join(session_dir, filename)
 
-    # Append assistant message
-    assistant_message = {"role": "assistant", "content": response}
-    history.append(assistant_message)
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump({"role": message.role, "content": message.content, "attachments": message.attachments}, f, indent=2)
 
-    # Save updated history
-    os.makedirs(f"{SESSIONS_DIR}{args.session}", exist_ok=True)
-    ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    with open(f"{SESSIONS_DIR}{args.session}/{ts}.json", "w", encoding="utf-8") as f:
-        json.dump(history, f, indent=2)
+            message.filename = filename  # Assign the filename to the message
+
+def get_session_history(args: AgentixConfig) -> list[Message]:
+    """Retrieve session history JSON from timestamped files."""
+    session_dir = f"{SESSIONS_DIR}{args.session}"
+    os.makedirs(session_dir, exist_ok=True)
+
+    # Load all message files and sort them by timestamp
+    message_files = glob.glob(os.path.join(session_dir, "*.json"))
+    message_files.sort()
+
+    history = []
+    for filepath in message_files:
+        with open(filepath, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            message = Message(role=data["role"], content=data["content"], attachments=data.get("attachments"))
+            message.filename = os.path.basename(filepath)  # Assign the filename to the message
+            history.append(message)
+
+    return history
