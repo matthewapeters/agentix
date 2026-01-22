@@ -2,7 +2,7 @@
 Docstring for agentix.context
 """
 
-from .message import Message
 from . import sessions
+from .message import Message
 
 __all__ = ["Message", "sessions"]

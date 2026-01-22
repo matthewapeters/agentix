@@ -7,7 +7,7 @@ import requests
 
 from .agentix_config import AgentixConfig
 from .constants import OLLAMA_API_BASE, OLLAMA_CHAT_ENDPOINT
-from .prompts import get_user_prompt
+from .context.prompts import get_user_prompt
 from .query_payload import QueryPayload
 
 # from .sessions import update_session

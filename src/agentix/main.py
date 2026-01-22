@@ -6,8 +6,8 @@ import sys
 from .agent import agentix
 from .agentix_config import AgentixConfig
 from .constants import SESSIONS_METADATA_FILE
+from .context.prompts import get_prompts
 from .models import get_models
-from .prompts import get_prompts
 from .server import start_server
 
 

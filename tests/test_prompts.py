@@ -3,7 +3,7 @@
 import unittest
 from unittest.mock import MagicMock, mock_open, patch
 
-from agentix import prompts
+from agentix.context import prompts
 from agentix.constants import AGENTIX_HOME
 
 

@@ -17,16 +17,16 @@ from .constants import (
     SYSTEM_PROMPTS_DIR,
 )
 from .context import Message
-from .file_utils import get_attachments, get_file, load_file
-from .main import main as __main__
-from .models import get_model, get_models
-from .prompts import get_prompts, get_system_prompt, get_user_prompt
+from .context.prompts import get_prompts, get_system_prompt, get_user_prompt
 from .context.sessions import (
     assemble_prompts,
     get_session_history,
     manage_sessions,
     trim_context,
 )
+from .file_utils import get_attachments, get_file, load_file
+from .main import main as __main__
+from .models import get_model, get_models
 from .transforms import transform_ollama_tags_to_openai_engines
 
 __all__ = [

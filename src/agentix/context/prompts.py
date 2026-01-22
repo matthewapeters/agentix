@@ -4,11 +4,11 @@ import glob
 import json
 import sys
 
-from .agentix_config import AgentixConfig
-from .constants import SYSTEM_PROMPTS_DIR
-from .file_utils import get_file
-from .tools import ast_tools, cst_tools
-from .tools.describe_tools import extract_tools_from_file, to_openai_tools
+from ..agentix_config import AgentixConfig
+from ..constants import SYSTEM_PROMPTS_DIR
+from ..file_utils import get_file
+from ..tools import ast_tools, cst_tools
+from ..tools.describe_tools import extract_tools_from_file, to_openai_tools
 
 
 def get_system_prompt(args: AgentixConfig) -> str:

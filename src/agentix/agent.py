@@ -6,10 +6,10 @@ from typing import Optional
 
 from .agentix_config import AgentixConfig
 from .api_client import query_api
+from .context.sessions import assemble_classification_prompt, manage_sessions
 from .models import get_model
 from .next_steps import take_steps
 from .prompt_classification_response import PromptClassificationResponse
-from .context.sessions import assemble_classification_prompt, manage_sessions
 
 
 def agentix(args: AgentixConfig) -> Optional[dict]:

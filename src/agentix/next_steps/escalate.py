@@ -8,7 +8,7 @@ def escalate(
 ) -> str:
     """
     Docstring for escalate
-    
+
     :param args: Description
     :type args: AgentixConfig
     :param next_step: Description
