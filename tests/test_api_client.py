@@ -5,7 +5,7 @@ from io import StringIO
 from unittest.mock import MagicMock, patch
 
 from agentix import api_client
-from agentix.sessions import assemble_prompts
+from agentix.context.sessions import assemble_prompts
 
 
 class TestAssemblePayload(unittest.TestCase):

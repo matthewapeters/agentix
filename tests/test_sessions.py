@@ -4,7 +4,7 @@ import json
 import unittest
 from unittest.mock import MagicMock, mock_open, patch
 
-from agentix import sessions
+from agentix.context import sessions
 
 
 class TestGetSessionHistory(unittest.TestCase):

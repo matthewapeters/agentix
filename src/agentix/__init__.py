@@ -21,7 +21,7 @@ from .file_utils import get_attachments, get_file, load_file
 from .main import main as __main__
 from .models import get_model, get_models
 from .prompts import get_prompts, get_system_prompt, get_user_prompt
-from .sessions import (
+from .context.sessions import (
     assemble_prompts,
     get_session_history,
     manage_sessions,

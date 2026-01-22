@@ -9,25 +9,7 @@ from .api_client import query_api
 from .models import get_model
 from .next_steps import take_steps
 from .prompt_classification_response import PromptClassificationResponse
-from .sessions import assemble_classification_prompt, manage_sessions, update_session
-
-
-def classify_user_prompt(initial_prompt, args) -> PromptClassificationResponse:
-    """Classify the user prompt to determine next steps."""
-    if args.debug:
-        print("classify_user_prompt", file=sys.stderr)
-
-    initial_prompt = assemble_classification_prompt(initial_prompt=initial_prompt)
-    classification: dict = query_api(args, initial_prompt)
-    if args.debug:
-        print(
-            json.dumps(classification, indent=2)
-            .encode("utf-8")
-            .decode("unicode_escape"),
-            file=sys.stderr,
-        )
-    update_session(args, [], classification)
-    return PromptClassificationResponse(**classification)
+from .context.sessions import assemble_classification_prompt, manage_sessions
 
 
 def agentix(args: AgentixConfig) -> Optional[dict]:

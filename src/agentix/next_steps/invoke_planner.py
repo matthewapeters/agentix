@@ -6,7 +6,7 @@ from agentix import AgentixConfig
 from agentix.api_client import query_api
 from agentix.context import Message
 from agentix.next_steps.take_steps import NextStep
-from agentix.sessions import assemble_prompts
+from agentix.context.sessions import assemble_prompts
 
 INVOKE_PLANNER_PROMPT = "invoke_planner"
 
